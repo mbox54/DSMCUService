@@ -15,6 +15,7 @@ CGridSFF::~CGridSFF()
 {
 }
 
+
 void CGridSFF::Init()
 {
 	// Define Grid table common parameters 
@@ -149,6 +150,143 @@ void CGridSFF::Config()
 	m_bRejectEditChanges = FALSE;
 	m_bRow2Col2Hidden = FALSE;
 }
+
+
+// NOTE:
+// FORMAT:
+// # Orange:	/Vendor Name/	:		20-35	/254, 232, 185
+// # Blue:		/Module Type/   :		40-55	/174, 238, 238
+// # Red:		/Serial Number/ :		68-83	/255, 193, 194
+// # Magenta:	/Data Code/		:		84-91	/238, 174, 235
+// # Green:		/Checksum/		:		63, 95	/147, 243, 146
+// #			/Length/		:		14-15
+// # 
+void CGridSFF::SetTableColor()
+{
+	// > Define Colours
+	COLORREF clr_Red_head = RGB(255, 193, 194);
+	COLORREF clr_Red_body = RGB(255, 223, 224);
+
+	COLORREF clr_Orange_head = RGB(254, 232, 185);
+	COLORREF clr_Orange_body = RGB(254, 252, 225);
+
+	COLORREF clr_Blue_head = RGB(174, 238, 238);
+	COLORREF clr_Blue_body = RGB(204, 255, 255);
+
+	COLORREF clr_Magenta_head = RGB(238, 174, 235);
+	COLORREF clr_Magenta_body = RGB(255, 234, 255);
+
+	COLORREF clr_Green_head = RGB(167, 243, 166);
+	COLORREF clr_Green_body = RGB(207, 250, 206);
+
+	WORD uiCount;
+	WORD uiStart;
+	WORD byte_number;
+
+	COLORREF Color_cur;
+
+	BYTE uGridRow;
+	BYTE uGridCol;
+
+	WORD uGridColLast = 15 + 1;						// +1 from Header Col
+	WORD uGridRowLast = 15 + 1;						// +1 from Header Row
+
+	// > Set Cell Resource
+	BYTE color_number = 0;
+
+	while (color_number < 4)
+	{
+		switch (color_number)
+		{
+		case 0:	// define Range Orange const
+
+			uiStart = 20;
+			uiCount = 16;
+
+			Color_cur = clr_Orange_body;
+
+			break;
+
+		case 1:	// define Range Blue const
+
+			uiStart = 40;
+			uiCount = 16;
+
+			Color_cur = clr_Blue_body;
+
+			break;
+
+		case 2:	// define Range Red const
+
+			uiStart = 68;
+			uiCount = 16;
+
+			Color_cur = clr_Red_body;
+
+			break;
+
+		case 3:	// define Range Magenta const
+
+			uiStart = 84;
+			uiCount = 8;
+
+			Color_cur = clr_Magenta_body;
+
+			break;
+
+		default:
+			break;
+		}//switch (color_number)
+
+		// > Current Color OP
+		byte_number = uiCount;
+
+		uGridRow = uiStart / 16;
+		uGridCol = uiStart - uGridRow * 16;
+
+		// fill in
+		BYTE act = 1;
+		while (act)
+		{
+			// SafeCheck: check Row end 
+			if (uGridRow > uGridRowLast)
+			{
+				// exit
+				// err
+				act = 0;
+			}
+
+			// check Col end
+			if (uGridCol > uGridColLast)
+			{
+				uGridCol = 1;
+
+				uGridRow++;
+			}
+
+			// set Color
+			this->SetItemBkColour(uGridRow, uGridCol, Color_cur);
+
+			uGridCol++;
+
+			// check End condition
+			if (byte_number > 0)
+			{
+				byte_number--;
+			}
+			else
+			{
+				// [CYCLE COMPLETE]
+				act = 0;
+			}
+		}//while (act) 
+
+		// update End Condition Value
+		color_number++;
+
+	}//while (color_number < 4)
+}
+
 
 // Use: Update Grid[0xFF x 0xFF] Interface 
 // FROM: startAddr TO: startAddr + count 
@@ -423,4 +561,3 @@ int CGridSFF::CheckValidASCII(int iRow, int iCol)
 
 	return act;
 }
-

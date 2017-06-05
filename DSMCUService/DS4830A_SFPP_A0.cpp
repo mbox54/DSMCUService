@@ -234,8 +234,10 @@ BOOL CDS4830A_SFPP_A0::OnInitDialog()
 
 	// TODO:  Add extra initialization here
 	m_Grid.Init();
+	m_Grid.SetTableColor();
 
 	m_GridASCII.Init();
+	m_GridASCII.SetTableColor();
 
 	// init var
 	m_bWasReading = 0;

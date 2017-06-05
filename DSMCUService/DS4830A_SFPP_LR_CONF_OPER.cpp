@@ -30,6 +30,7 @@ void CDS4830A_SFPP_CONF::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_VERTICAL, m_bCheck_Vertical);
 	DDX_Check(pDX, IDC_CHECK_BIAS_MOD_DEPENDANCE, m_bCheck_BIAS_MOD_Dependancy);
 	DDX_Check(pDX, IDC_CHECK_SAFERANGE, m_bCheck_SafeRange);
+	DDX_Text(pDX, IDC_EDIT_PASSVALUE, m_sEdit_PassValue);
 }
 
 
@@ -39,6 +40,7 @@ CDS4830A_SFPP_CONF::CDS4830A_SFPP_CONF(CWnd* pParent /*=NULL*/)
 	, m_bCheck_Vertical(FALSE)
 	, m_bCheck_BIAS_MOD_Dependancy(FALSE)
 	, m_bCheck_SafeRange(FALSE)
+	, m_sEdit_PassValue(_T(""))
 {
 
 }
@@ -751,6 +753,7 @@ BEGIN_MESSAGE_MAP(CDS4830A_SFPP_CONF, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_VERTICAL, &CDS4830A_SFPP_CONF::OnBnClickedCheckVertical)
 	ON_BN_CLICKED(IDC_BUTTON_VERTICAL_SET, &CDS4830A_SFPP_CONF::OnBnClickedButtonVerticalSet)
 	ON_BN_CLICKED(IDC_CHECK_SAFERANGE, &CDS4830A_SFPP_CONF::OnBnClickedCheckSaferange)
+	ON_BN_CLICKED(IDC_CHECK_BIAS_MOD_DEPENDANCE, &CDS4830A_SFPP_CONF::OnBnClickedCheckBiasModDependance)
 END_MESSAGE_MAP()
 
 
@@ -765,7 +768,32 @@ void CDS4830A_SFPP_CONF::OnBnClickedButton4()
 {
 	// Valid ConfigTable Values
 	unsigned char v_TablName[1] = { 0x10 };
-	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+//	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+	unsigned char v_TablPass[4]; // = { 0x00, 0x11, 0x22, 0x33 };
+
+
+								 // get Password 4Bytes
+	UpdateData(TRUE);
+
+	CString strHex;
+
+	for (unsigned char k = 0; k < 4; k++)
+	{
+		char cPassLetter[2];
+		cPassLetter[0] = m_sEdit_PassValue[k * 2];
+		cPassLetter[1] = m_sEdit_PassValue[k * 2 + 1];
+
+		strHex.AppendChar(cPassLetter[0]);
+		strHex.AppendChar(cPassLetter[1]);
+
+		// convert to Byte
+		unsigned char byte_passLetter;
+		byte_passLetter = (BYTE)_tcstoul(strHex, NULL, 16);
+
+		v_TablPass[k] = byte_passLetter;
+
+		strHex.Truncate(0);
+	}
 
 	unsigned char v_WrByte[1];
 
@@ -810,8 +838,32 @@ void CDS4830A_SFPP_CONF::OnBnClickedButton5()
 {
 	// Valid ConfigTable Values
 	unsigned char v_TablName[1] = { 0x10 };
-	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+//	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+	unsigned char v_TablPass[4]; // = { 0x00, 0x11, 0x22, 0x33 };
 
+
+								 // get Password 4Bytes
+	UpdateData(TRUE);
+
+	CString strHex;
+
+	for (unsigned char k = 0; k < 4; k++)
+	{
+		char cPassLetter[2];
+		cPassLetter[0] = m_sEdit_PassValue[k * 2];
+		cPassLetter[1] = m_sEdit_PassValue[k * 2 + 1];
+
+		strHex.AppendChar(cPassLetter[0]);
+		strHex.AppendChar(cPassLetter[1]);
+
+		// convert to Byte
+		unsigned char byte_passLetter;
+		byte_passLetter = (BYTE)_tcstoul(strHex, NULL, 16);
+
+		v_TablPass[k] = byte_passLetter;
+
+		strHex.Truncate(0);
+	}
 
 	// progress component
 	p_cPB_OP->SetPos(0);
@@ -873,6 +925,11 @@ BOOL CDS4830A_SFPP_CONF::OnInitDialog()
 
 	// > Sliders
 	SliderInit();
+
+	// > Password
+	m_sEdit_PassValue = (CString)"00112233";
+
+	UpdateData(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
@@ -1914,4 +1971,10 @@ void CDS4830A_SFPP_CONF::OnBnClickedCheckSaferange()
 	}
 
 	UpdateData(FALSE);
+}
+
+
+void CDS4830A_SFPP_CONF::OnBnClickedCheckBiasModDependance()
+{
+	// TODO: Add your control notification handler code here
 }

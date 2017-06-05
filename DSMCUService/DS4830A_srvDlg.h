@@ -19,6 +19,7 @@
 #include "DS4830A_SFPP_LR_CONF_ENGI.h"
 #include "DS4830A_SFPP_MSA.h"
 #include "DS4830A_SFPP_DDM.h"
+#include "DS4830A_SFPP_ER_TEC_APC.h"
 
 // System Grid
 #include "SLABCP2112.h"
@@ -66,10 +67,10 @@ typedef struct
 {
 	unsigned char TEMPERATURE_MSB;				// 96
 	unsigned char TEMPERATURE_LSB;				// 97
-	unsigned short  VCC;						// 98-99
-	unsigned short  TX_BIAS;					// 100-101
-	unsigned short  TX_POWER;					// 102-103
-	unsigned short  RX_POWER;					// 104-105
+	unsigned char VCC[2];						// 98-99
+	unsigned char TX_BIAS[2];					// 100-101
+	unsigned char TX_POWER[2];					// 102-103
+	unsigned char RX_POWER[2];					// 104-105
 } st_DDM_ACTIVE;
 
 typedef struct
@@ -281,8 +282,8 @@ protected:
 	// define users Tab List
 	struct st_UserTabOrder
 	{
-		unsigned char v_Tabs_Programmer[10] =	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 0 };
-		unsigned char v_Tabs_Engineer[10] =		{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 0 };
+		unsigned char v_Tabs_Programmer[10] =	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		unsigned char v_Tabs_Engineer[10] =		{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		unsigned char v_Tabs_Operator[10] =		{ 0, 3, 4, 0, 0, 0, 0, 0, 0, 0 };
 	} m_UserTabOrder;
 	
@@ -294,12 +295,13 @@ protected:
 	CDSBootLoader					m_pageDSBootLoader;
 	CDS4830A_SFPP_A0				m_DS4830A_SFPP_A0;
 	CDS4830A_SFPP_A2				m_DS4830A_SFPP_A2;
-	CDS4830A_SFPP_ER_ENGI				m_DS4830A_SFPP_T10;
+	CDS4830A_SFPP_ER_ENGI			m_DS4830A_SFPP_T10;
 	CDS4830A_SFF_Custom				m_DS4830A_SFPP_Custom;
 	CDS4830A_SFPP_CONF				m_DS4830A_SFPP_LR_CONF_OPER;
 	CDS4830A_SFPP_LR_CONF_ENGI		m_DS4830A_SFPP_LR_CONF_ENGI;
 	CDS4830A_SFPP_MSA				m_DS4830A_SFPP_MSA;
 	CDS4830A_SFPP_DDM				m_DS4830A_SFPP_DDM;
+	CDS4830A_SFPP_ER_TEC_APC		m_DS4830A_SFPP_TEC_APC;
 
 
 	// Service data operations/options
@@ -339,18 +341,6 @@ public:
 	// tabs control
 	CDlgTabCtrl m_tabCtrl_DS4830A;
 
-
-	// table ops
-	void DDM_Proceed();
-
-//	unsigned char DeviceSlave_Read(BYTE * v_ByteData, BYTE slaveAddr, BYTE startAddr, WORD count);
-
-	virtual BOOL OnInitDialog();
-
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnBnClickedButtonRead();
-	afx_msg void OnBnClickedButtonWrite();
-
 	CEdit m_EDIT_INFO;
 
 	// main window status input
@@ -362,14 +352,27 @@ public:
 	// system Grid
 	CGridSFF_CP2112 m_GridSystem;
 
+	BOOL m_bCheck_Autoscan;
+	CStatic m_Static_Logo;
+
+	// table ops
+	void DDM_Proceed();
+
+//	unsigned char DeviceSlave_Read(BYTE * v_ByteData, BYTE slaveAddr, BYTE startAddr, WORD count);
+
+	virtual BOOL OnInitDialog();
+
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnBnClickedButtonRead();
+	afx_msg void OnBnClickedButtonWrite();
 	afx_msg void OnBnClickedCancel();
 	afx_msg void OnBnClickedOk();
 	
 	afx_msg void OnBnClickedButton1();
 	//  auto scanning state
-	BOOL m_bCheck_Autoscan;
-	CStatic m_Static_Logo;
+
 	afx_msg void OnPaint();
+	afx_msg void OnNMClickTabDs4830a(NMHDR *pNMHDR, LRESULT *pResult);
 };
 
 

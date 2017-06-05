@@ -13,6 +13,7 @@ IMPLEMENT_DYNAMIC(CDS4830A_SFPP_LR_CONF_ENGI, CDialogEx)
 
 CDS4830A_SFPP_LR_CONF_ENGI::CDS4830A_SFPP_LR_CONF_ENGI(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_PROPPAGE_DS4830A_SFPP_LR_CONF_ENGI, pParent)
+	, m_sEdit_PassValue(_T(""))
 {
 
 }
@@ -672,11 +673,12 @@ void CDS4830A_SFPP_LR_CONF_ENGI::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_MOD_L, m_Edit_Mod_L);
 	DDX_Control(pDX, IDC_EDIT_HOR, m_Edit_Horison);
 	DDX_Control(pDX, IDC_EDIT_VERTICAL, m_Edit_Vertical);
-	
+
 	DDX_Control(pDX, IDC_SLIDER_BIAS, m_Slider_BIAS);
 	DDX_Control(pDX, IDC_SLIDER_MOD, m_Slider_MOD);
 	DDX_Control(pDX, IDC_SLIDER_HORISON, m_Slider_HORISON);
 	DDX_Control(pDX, IDC_SLIDER_VERTICAL, m_Slider_VERTICAL);
+	DDX_Text(pDX, IDC_EDIT_PASSVALUE, m_sEdit_PassValue);
 }
 
 void CDS4830A_SFPP_LR_CONF_ENGI::OnGridClick(NMHDR * pNotifyStruct, LRESULT * pResult)
@@ -1051,7 +1053,32 @@ void CDS4830A_SFPP_LR_CONF_ENGI::OnBnClickedButton4()
 {
 	// Valid ConfigTable Values
 	unsigned char v_TablName[1] = { 0x10 };
-	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+//	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+	unsigned char v_TablPass[4]; // = { 0x00, 0x11, 0x22, 0x33 };
+
+
+	// get Password 4Bytes
+	UpdateData(TRUE);
+
+	CString strHex;
+
+	for (unsigned char k = 0; k < 4; k++)
+	{
+		char cPassLetter[2];
+		cPassLetter[0] = m_sEdit_PassValue[k * 2];
+		cPassLetter[1] = m_sEdit_PassValue[k * 2 + 1];
+
+		strHex.AppendChar(cPassLetter[0]);
+		strHex.AppendChar(cPassLetter[1]);
+
+		// convert to Byte
+		unsigned char byte_passLetter;
+		byte_passLetter = (BYTE)_tcstoul(strHex, NULL, 16);
+
+		v_TablPass[k] = byte_passLetter;
+
+		strHex.Truncate(0);
+	}
 
 	unsigned char v_WrByte[1];
 
@@ -1096,8 +1123,31 @@ void CDS4830A_SFPP_LR_CONF_ENGI::OnBnClickedButton5()
 {
 	// Valid ConfigTable Values
 	unsigned char v_TablName[1] = { 0x10 };
-	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+//	unsigned char v_TablPass[4] = { 'O', 'P', 'W', 'Y' };
+	unsigned char v_TablPass[4];
 
+	// get Password 4Bytes
+	UpdateData(TRUE);
+
+	CString strHex;
+
+	for (unsigned char k = 0; k < 4; k++)
+	{
+		char cPassLetter[2];
+		cPassLetter[0] = m_sEdit_PassValue[k * 2];
+		cPassLetter[1] = m_sEdit_PassValue[k * 2 + 1];
+
+		strHex.AppendChar(cPassLetter[0]);
+		strHex.AppendChar(cPassLetter[1]);
+
+		// convert to Byte
+		unsigned char byte_passLetter;
+		byte_passLetter = (BYTE)_tcstoul(strHex, NULL, 16);
+
+		v_TablPass[k] = byte_passLetter;
+
+		strHex.Truncate(0);
+	}
 
 	// progress component
 	p_cPB_OP->SetPos(0);
@@ -1164,16 +1214,17 @@ void CDS4830A_SFPP_LR_CONF_ENGI::OnBnClickedButtonConfWrite()
 
 void CDS4830A_SFPP_LR_CONF_ENGI::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	// TODO: Add your message handler code here and/or call default
+	// get Slider components
 	CWnd *pSliderBIAS = this->GetDlgItem(IDC_SLIDER_BIAS);
 	CWnd *pSliderMOD = this->GetDlgItem(IDC_SLIDER_MOD);
 	CWnd *pSliderHOR = this->GetDlgItem(IDC_SLIDER_HORISON);
 	CWnd *pSliderVERT = this->GetDlgItem(IDC_SLIDER_VERTICAL);
 
 
+
 	if (pScrollBar == pSliderBIAS)			//  BIAS Slider
 	{
-		// get static components
+		// get Static components
 		CWnd *pStaticBIAS = this->GetDlgItem(IDC_STATIC_BIAS);
 		CWnd *pStaticMOD = this->GetDlgItem(IDC_STATIC_MOD);
 
@@ -1448,6 +1499,12 @@ void CDS4830A_SFPP_LR_CONF_ENGI::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* 
 
 	if (nSBCode == TB_THUMBTRACK)
 	{
+		
+	}
+
+
+	if (nSBCode == SB_ENDSCROLL)
+	{
 
 
 	}
@@ -1475,6 +1532,11 @@ BOOL CDS4830A_SFPP_LR_CONF_ENGI::OnInitDialog()
 
 	// > Sliders
 	SliderInit();
+
+	// > Password
+	m_sEdit_PassValue = (CString)"00112233";
+
+	UpdateData(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE

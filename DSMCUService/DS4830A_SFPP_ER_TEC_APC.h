@@ -1,12 +1,7 @@
 #pragma once
-
-/////////////////////////////////////////////////////////////////////////////
-// Includes
-/////////////////////////////////////////////////////////////////////////////
-#include "SLABCP2112.h"
 #include "GridSFF_CP2112.h"
-#include "afxwin.h"
 #include "afxcmn.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions
@@ -16,9 +11,14 @@
 #define OP_FAILED				0x01
 
 // slider range
-#define VALUE_BIAS_MIN			0x00
-#define VALUE_BIAS_MAX			0x90
-#define VALUE_BIAS_DEF			0x30
+#define VALUE_TEC_GATEC_MIN		0x00
+#define VALUE_TEC_GATEC_MAX		0xFA
+#define VALUE_TEC_GATEH_MIN		0x00
+#define VALUE_TEC_GATEH_MAX		0xFA
+
+#define VALUE_TEMPR_MIN			-250
+#define VALUE_TEMPR_MAX			250
+#define VALUE_TEMPR_DEF			0x00
 
 #define VALUE_MOD_MIN			0x00
 #define VALUE_MOD_MAX			0x80
@@ -27,24 +27,27 @@
 #define ADDR_BIAS				0x0F
 #define ADDR_MOD				0x0C
 
+#define TIMER_ID_TEC_APC		0x01
 
 // ##########################################################################
-// CDS4830A_SFPP_ER_ENGI dialog
+// CDS4830A_SFPP_ER_TEC_APC dialog
 // ##########################################################################
-class CDS4830A_SFPP_ER_ENGI : public CDialog
+class CDS4830A_SFPP_ER_TEC_APC : public CDialogEx
 {
-	DECLARE_DYNAMIC(CDS4830A_SFPP_ER_ENGI)
+	DECLARE_DYNAMIC(CDS4830A_SFPP_ER_TEC_APC)
 
 public:
-	CDS4830A_SFPP_ER_ENGI(CWnd* pParent = NULL);   // standard constructor
-	CDS4830A_SFPP_ER_ENGI(HID_SMBUS_DEVICE * pHidSmbus, CProgressCtrl * p_cPB_OP, CEdit * p_EDIT_STATUS, st_serviceData * p_service, CWnd* pParent = NULL);
+	CDS4830A_SFPP_ER_TEC_APC(CWnd* pParent = NULL);   // standard constructor
+	CDS4830A_SFPP_ER_TEC_APC(HID_SMBUS_DEVICE * pHidSmbus, CProgressCtrl * p_cPB_OP, CEdit * p_EDIT_STATUS, st_serviceData * p_service, CWnd* pParent = NULL);
 
-	virtual ~CDS4830A_SFPP_ER_ENGI();
+	virtual ~CDS4830A_SFPP_ER_TEC_APC();
+
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_PROPPAGE_DS4830A_SFPP_ER_ENGI };
+	enum { IDD = IDD_PROPPAGE_DS4830A_SFPP_ER_TEC_APC };
 #endif
+
 
 protected:
 	HID_SMBUS_DEVICE* m_pHidSmbus;
@@ -66,13 +69,15 @@ protected:
 	void Trace(LPCTSTR szFmt, ...);
 
 	// slider config
-	void SliderInit();
-
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	void CtrlsInit();
 
 	// Device OP
 	void ReadDevice();
 	void WriteDevice();
+
+	void Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC);
+
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	// Grid events
 	afx_msg void OnGridClick(NMHDR *pNotifyStruct, LRESULT* pResult);
@@ -83,8 +88,16 @@ protected:
 	// !debug
 	BYTE uValues2[256];
 
+	// > Timer	
+	UINT_PTR m_nTimer;
+
 
 public:
+
+	void StartTimer();
+	void EditTimer();
+	void StopTimer();
+
 	// Grid component
 	CGridSFF_CP2112 m_Grid;
 
@@ -94,28 +107,28 @@ public:
 	// main window status progress
 	CProgressCtrl * p_cPB_OP;
 
-	// Sliders
-	CSliderCtrl m_Slider_BIAS;
-	CSliderCtrl m_Slider_MOD;
+	CSliderCtrl m_Slider_Tempr;
+	CSliderCtrl m_Slider_Power;
 
-	CEdit m_Edit_Bias_H;
-	CEdit m_Edit_Mod_H;
-	//	
-
-	afx_msg void OnBnClickedButton1();
-	afx_msg void OnBnClickedButton2();
-	afx_msg void OnBnClickedButton3();
+	// Dialog events
+	afx_msg void OnBnClickedButtonConfWrite();
 	afx_msg void OnBnClickedButton4();
 	afx_msg void OnBnClickedButton5();
 
 	virtual BOOL OnInitDialog();
-	afx_msg void OnBnClickedButtonConfRead();
 
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-
-	afx_msg void OnBnClickedButtonBiasSet();
-	afx_msg void OnBnClickedButtonModSet2();
-	afx_msg void OnBnClickedButtonConfWrite();
-	CString m_sEdit_PassValue;
+	BOOL m_bCheck_TEC_act;
+	BOOL m_bCheck_TEC_heat;
+	afx_msg void OnBnClickedCheckTecAct();
+	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnBnClickedButton2();
+	CString m_Edit_Tempr_Opt;
+	BOOL m_bCheck_Power;
+	BOOL m_bCheck_Photo;
+	afx_msg void OnBnClickedCheckPowerActive();
+	afx_msg void OnBnClickedCheckPhotoActive();
+	afx_msg void OnEnChangeEditTemprOpt();
 };

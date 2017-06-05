@@ -169,4 +169,6 @@ public:
 
 	afx_msg void OnBnClickedCheckSaferange();
 
+	afx_msg void OnBnClickedCheckBiasModDependance();
+	CString m_sEdit_PassValue;
 };

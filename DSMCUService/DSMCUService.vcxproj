@@ -188,6 +188,7 @@
     <ClInclude Include="DlgTabCtrl.h" />
     <ClInclude Include="DS4830A_SFF_Custom.h" />
     <ClInclude Include="DS4830A_SFPP_DDM.h" />
+    <ClInclude Include="DS4830A_SFPP_ER_TEC_APC.h" />
     <ClInclude Include="DS4830A_SFPP_LR_CONF_ENGI.h" />
     <ClInclude Include="DS4830A_SFPP_LR_CONF_OPER.h" />
     <ClInclude Include="DS4830A_SFPP_MSA.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="DlgTabCtrl.cpp" />
     <ClCompile Include="DS4830A_SFF_Custom.cpp" />
     <ClCompile Include="DS4830A_SFPP_DDM.cpp" />
+    <ClCompile Include="DS4830A_SFPP_ER_TEC_APC.cpp" />
     <ClCompile Include="DS4830A_SFPP_LR_CONF_ENGI.cpp" />
     <ClCompile Include="DS4830A_SFPP_LR_CONF_OPER.cpp" />
     <ClCompile Include="DS4830A_SFPP_MSA.cpp" />

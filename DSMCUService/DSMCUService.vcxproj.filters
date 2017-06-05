@@ -126,6 +126,9 @@
     <ClInclude Include="DS4830A_SFPP_ER_ENGI.h">
       <Filter>Header Files\DS4830A_tabs</Filter>
     </ClInclude>
+    <ClInclude Include="DS4830A_SFPP_ER_TEC_APC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DSMCUService.cpp">
@@ -205,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="DS4830A_SFPP_ER_ENGI.cpp">
       <Filter>Source Files\DS4830A_tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="DS4830A_SFPP_ER_TEC_APC.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

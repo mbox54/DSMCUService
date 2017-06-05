@@ -35,6 +35,7 @@ CDS4830A_srvDlg::CDS4830A_srvDlg(HID_SMBUS_DEVICE * pHidSmbus, BYTE mode, CWnd* 
 	, m_DS4830A_SFPP_LR_CONF_ENGI(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
 	, m_DS4830A_SFPP_MSA(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
 	, m_DS4830A_SFPP_DDM(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
+	, m_DS4830A_SFPP_TEC_APC(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
 
 
 {
@@ -89,6 +90,7 @@ void CDS4830A_srvDlg::InitDlgTabs()
 		m_tabCtrl_DS4830A.InsertItem(6, _T("Custom"), IDD_PROPPAGE_DS4830A_SFPP_CUSTOM, &m_DS4830A_SFPP_Custom);
 		m_tabCtrl_DS4830A.InsertItem(7, _T("MSA"), IDD_PROPPAGE_DS4830A_SFPP_MSA, &m_DS4830A_SFPP_MSA);
 		m_tabCtrl_DS4830A.InsertItem(8, _T("DDM"), IDD_PROPPAGE_DS4830A_SFPP_DDM, &m_DS4830A_SFPP_DDM);
+		m_tabCtrl_DS4830A.InsertItem(9, _T("TEC APC"), IDD_PROPPAGE_DS4830A_SFPP_ER_TEC_APC, &m_DS4830A_SFPP_TEC_APC);
 		break;
 
 	case MD_ENGINEER:
@@ -101,6 +103,8 @@ void CDS4830A_srvDlg::InitDlgTabs()
 		m_tabCtrl_DS4830A.InsertItem(6, _T("Custom"), IDD_PROPPAGE_DS4830A_SFPP_CUSTOM, &m_DS4830A_SFPP_Custom);
 		m_tabCtrl_DS4830A.InsertItem(7, _T("MSA"), IDD_PROPPAGE_DS4830A_SFPP_MSA, &m_DS4830A_SFPP_MSA);
 		m_tabCtrl_DS4830A.InsertItem(8, _T("DDM"), IDD_PROPPAGE_DS4830A_SFPP_DDM, &m_DS4830A_SFPP_DDM);
+		m_tabCtrl_DS4830A.InsertItem(9, _T("TEC APC"), IDD_PROPPAGE_DS4830A_SFPP_ER_TEC_APC, &m_DS4830A_SFPP_TEC_APC);
+
 		break;
 
 	case MD_OPERATOR:
@@ -160,6 +164,7 @@ BEGIN_MESSAGE_MAP(CDS4830A_srvDlg, CDialog)
 	ON_BN_CLICKED(IDOK, &CDS4830A_srvDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON1, &CDS4830A_srvDlg::OnBnClickedButton1)
 	ON_WM_PAINT()
+	ON_NOTIFY(NM_CLICK, IDC_TAB_DS4830A, &CDS4830A_srvDlg::OnNMClickTabDs4830a)
 END_MESSAGE_MAP()
 
 
@@ -237,40 +242,45 @@ void CDS4830A_srvDlg::DDM_Proceed()
 
 	// get Labels
 	CWnd *pTEMPERATURE = this->GetDlgItem(IDC_STATIC_TEMPERATURE);
-	CWnd *pTEMPERATURE_WARN_MIN = this->GetDlgItem(IDC_STATIC_TEMPERATURE_WARN_MIN);
-	CWnd *pTEMPERATURE_WARN_MAX = this->GetDlgItem(IDC_STATIC_TEMPERATURE_WARN_MAX);
-	CWnd *pTEMPERATURE_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TEMPERATURE_ALERT_MIN);
-	CWnd *pTEMPERATURE_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TEMPERATURE_ALERT_MAX);
+	//	CWnd *pTEMPERATURE_WARN_MIN = this->GetDlgItem(IDC_STATIC_TEMPERATURE_WARN_MIN);
+	//	CWnd *pTEMPERATURE_WARN_MAX = this->GetDlgItem(IDC_STATIC_TEMPERATURE_WARN_MAX);
+	//	CWnd *pTEMPERATURE_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TEMPERATURE_ALERT_MIN);
+	//	CWnd *pTEMPERATURE_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TEMPERATURE_ALERT_MAX);
 
 	CWnd *pVCC = this->GetDlgItem(IDC_STATIC_VCC);
-	CWnd *pVCC_WARN_MIN = this->GetDlgItem(IDC_STATIC_VCC_WARN_MIN);
-	CWnd *pVCC_WARN_MAX = this->GetDlgItem(IDC_STATIC_VCC_WARN_MAX);
-	CWnd *pVCC_ALERT_MIN = this->GetDlgItem(IDC_STATIC_VCC_ALERT_MIN);
-	CWnd *pVCC_ALERT_MAX = this->GetDlgItem(IDC_STATIC_VCC_ALERT_MAX);
+	//	CWnd *pVCC_WARN_MIN = this->GetDlgItem(IDC_STATIC_VCC_WARN_MIN);
+	//	CWnd *pVCC_WARN_MAX = this->GetDlgItem(IDC_STATIC_VCC_WARN_MAX);
+	//	CWnd *pVCC_ALERT_MIN = this->GetDlgItem(IDC_STATIC_VCC_ALERT_MIN);
+	//	CWnd *pVCC_ALERT_MAX = this->GetDlgItem(IDC_STATIC_VCC_ALERT_MAX);
 
 	CWnd *pTX_BIAS = this->GetDlgItem(IDC_STATIC_TX_BIAS);
-	CWnd *pTX_BIAS_WARN_MIN = this->GetDlgItem(IDC_STATIC_TX_BIAS_WARN_MIN);
-	CWnd *pTX_BIAS_WARN_MAX = this->GetDlgItem(IDC_STATIC_TX_BIAS_WARN_MAX);
-	CWnd *pTX_BIAS_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TX_BIAS_ALERT_MIN);
-	CWnd *pTX_BIAS_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TX_BIAS_ALERT_MAX);
+	//	CWnd *pTX_BIAS_WARN_MIN = this->GetDlgItem(IDC_STATIC_TX_BIAS_WARN_MIN);
+	//	CWnd *pTX_BIAS_WARN_MAX = this->GetDlgItem(IDC_STATIC_TX_BIAS_WARN_MAX);
+	//	CWnd *pTX_BIAS_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TX_BIAS_ALERT_MIN);
+	//	CWnd *pTX_BIAS_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TX_BIAS_ALERT_MAX);
 
 	CWnd *pTX_POWER = this->GetDlgItem(IDC_STATIC_TX_POWER);
-	CWnd *pTX_POWER_WARN_MIN = this->GetDlgItem(IDC_STATIC_TX_POWER_WARN_MIN);
-	CWnd *pTX_POWER_WARN_MAX = this->GetDlgItem(IDC_STATIC_TX_POWER_WARN_MAX);
-	CWnd *pTX_POWER_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TX_POWER_ALERT_MIN);
-	CWnd *pTX_POWER_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TX_POWER_ALERT_MAX);
+	//	CWnd *pTX_POWER_WARN_MIN = this->GetDlgItem(IDC_STATIC_TX_POWER_WARN_MIN);
+	//	CWnd *pTX_POWER_WARN_MAX = this->GetDlgItem(IDC_STATIC_TX_POWER_WARN_MAX);
+	//	CWnd *pTX_POWER_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TX_POWER_ALERT_MIN);
+	//	CWnd *pTX_POWER_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TX_POWER_ALERT_MAX);
 
 	CWnd *pRX_POWER = this->GetDlgItem(IDC_STATIC_RX_POWER);
-	CWnd *pRX_POWER_WARN_MIN = this->GetDlgItem(IDC_STATIC_RX_POWER_WARN_MIN);
-	CWnd *pRX_POWER_WARN_MAX = this->GetDlgItem(IDC_STATIC_RX_POWER_WARN_MAX);
-	CWnd *pRX_POWER_ALERT_MIN = this->GetDlgItem(IDC_STATIC_RX_POWER_ALERT_MIN);
-	CWnd *pRX_POWER_ALERT_MAX = this->GetDlgItem(IDC_STATIC_RX_POWER_ALERT_MAX);
+	//	CWnd *pRX_POWER_WARN_MIN = this->GetDlgItem(IDC_STATIC_RX_POWER_WARN_MIN);
+	//	CWnd *pRX_POWER_WARN_MAX = this->GetDlgItem(IDC_STATIC_RX_POWER_WARN_MAX);
+	//	CWnd *pRX_POWER_ALERT_MIN = this->GetDlgItem(IDC_STATIC_RX_POWER_ALERT_MIN);
+	//	CWnd *pRX_POWER_ALERT_MAX = this->GetDlgItem(IDC_STATIC_RX_POWER_ALERT_MAX);
 
 	unsigned short iValue;
+	int icValue;
+
 	CString str;
 
 	// > Real-Time Values
 	// get TEMPERATURE
+	// FORMAT:
+	// 1Byte MSB = uChar, 1 Byte LSB = SFF_Fract
+	// 1Byte MSB 1x = 1Grad_Celc
 	iValue = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_MSB;
 	// convert to str
 	str.Format(L"%d", iValue);
@@ -278,33 +288,51 @@ void CDS4830A_srvDlg::DDM_Proceed()
 	pTEMPERATURE->SetWindowTextW(str);
 
 	// get VCC
-	iValue = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC;
+	// FORMAT:
+	// 2Byte Value
+	// 1x = 100uV
+	iValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[1]) / 10;
 	// convert to str
 	str.Format(L"%d", iValue);
 	// output
 	pVCC->SetWindowTextW(str);
 
 	// get TX_BIAS
-	iValue = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS;
+	// FORMAT:
+	// 2Byte Value
+	// 1x = 2uA
+	iValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[1]) * 2;
 	// convert to str
 	str.Format(L"%d", iValue);
 	// output
 	pTX_BIAS->SetWindowTextW(str);
 
 	// get TX_POWER
-	iValue = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER;
+	// FORMAT:
+	// 2Byte Value
+	// 1x = 0.1uW
+	icValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[1]) /10;
+	// convert to dBm
+	//icValue = 10 * log10(iValue);
+
 	// convert to str
-	str.Format(L"%d", iValue);
+	str.Format(L"%d", icValue);
 	// output
 	pTX_POWER->SetWindowTextW(str);
 
 	// get RX_POWER
-	iValue = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER;
+	// FORMAT:
+	// 2Byte Value
+	iValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[1]) / 10;
+	// convert to dBm
+//	iValue = 10 * log10(iValue);	
+	
 	// convert to str
 	str.Format(L"%d", iValue);
 	// output
 	pRX_POWER->SetWindowTextW(str);
 
+/*
 	// > Warning Values
 	// > > Low
 	// get TEMPERATURE
@@ -467,6 +495,7 @@ void CDS4830A_srvDlg::DDM_Proceed()
 	str.Format(L"%d", iValue);
 	// output
 	pRX_POWER_ALERT_MAX->SetWindowTextW(str);
+*/
 
 	m_cPB_OP.SetPos(100);
 	UpdateData(FALSE);
@@ -702,6 +731,15 @@ void CDS4830A_srvDlg::OnBnClickedButtonRead()
 
 		break;
 
+	case 9:	//m_DS4830A_SFPP_TEC_APC	
+		m_service.activeState = SERVICE_STATE_DISABLING;
+
+		m_DS4830A_SFPP_TEC_APC.OnBnClickedButton4();
+
+		m_service.activeState = SERVICE_STATE_ENABLING;
+
+		break;
+
 	default:
 
 		// error check
@@ -799,6 +837,16 @@ void CDS4830A_srvDlg::OnBnClickedButtonWrite()
 
 		break;
 
+	case 9:	//m_DS4830A_SFPP_TEC_APC	
+		m_service.activeState = SERVICE_STATE_DISABLING;
+
+		m_DS4830A_SFPP_TEC_APC.OnBnClickedButton5();
+
+		m_service.activeState = SERVICE_STATE_ENABLING;
+
+		break;
+
+
 	default:
 		break;
 	}
@@ -879,4 +927,68 @@ void CDS4830A_srvDlg::OnPaint()
 	// return control to dialog
 	CDialog::OnPaint();
 
+}
+
+
+void CDS4830A_srvDlg::OnNMClickTabDs4830a(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// TODO: Add your control notification handler code here
+/*	
+	int msgboxID = MessageBox(
+		(LPCWSTR)L"Желаете выйти из программы?",
+		(LPCWSTR)L"Выход из программы обслуживания \n",
+		MB_ICONQUESTION | MB_YESNO
+	);
+*/
+
+//	this->OnBnClickedButtonRead();
+// define User Active Page Value
+	BYTE uOrderPage;
+	BYTE uUserPage;
+
+	//NOTE: kak govoril Maksim, esli est pamiat, nujno ee ispolzovat.
+	uOrderPage = m_tabCtrl_DS4830A.GetCurSel();
+
+	// select from Tab Order
+	switch (m_Mode)
+	{
+	case MD_PROGRAMMER:
+		uUserPage = m_UserTabOrder.v_Tabs_Programmer[uOrderPage];
+		break;
+
+	case MD_ENGINEER:
+		uUserPage = m_UserTabOrder.v_Tabs_Engineer[uOrderPage];
+		break;
+
+	case MD_OPERATOR:
+		uUserPage = m_UserTabOrder.v_Tabs_Operator[uOrderPage];
+		break;
+
+	default:
+
+		// error check
+		break;
+
+	}
+
+	// select from User Tab Value
+	switch (uUserPage)
+	{
+
+
+	case 9:	//m_DS4830A_SFPP_TEC_APC	
+
+		m_DS4830A_SFPP_TEC_APC.StartTimer();
+
+		break;
+
+	default:
+
+		m_DS4830A_SFPP_TEC_APC.StopTimer();
+
+		break;
+	}
+
+
+	*pResult = 0;
 }

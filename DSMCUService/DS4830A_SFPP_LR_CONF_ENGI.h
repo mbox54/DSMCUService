@@ -155,4 +155,5 @@ public:
 	afx_msg void OnBnClickedButtonHorSet();
 //	afx_msg void OnBnClickedCheckVertical();
 	afx_msg void OnBnClickedButtonVerticalSet();
+	CString m_sEdit_PassValue;
 };

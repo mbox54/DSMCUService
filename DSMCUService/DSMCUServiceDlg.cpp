@@ -223,16 +223,19 @@ BOOL CDSMCUServiceDlg::Connect()
 		// > Set GPIO Config
 		// GPIO3 = 0 / GND
 //		HID_SMBUS_STATUS status = HidSmbus_WriteLatch(*&m_hidSmbus, 1, 0xE8);
-
+/*
 		BYTE mode = 0x00;
 		BYTE function = 0x00;
-		BYTE direction = 0xA8;
+		BYTE direction = 0x00;	
+		// NOTE: 0 = input, 1 = output
 
 		// Set GPIO direction and mode bitmasks
 		HID_SMBUS_STATUS status = HidSmbus_SetGpioConfig(m_hidSmbus, direction, mode, function, 0);
 
-		status = HidSmbus_WriteLatch(m_hidSmbus, 0x00, 0xA8);
+		status = HidSmbus_WriteLatch(m_hidSmbus, 0x00, 0xFF);
 //		status = HidSmbus_WriteLatch(m_hidSmbus, 0, HID_SMBUS_MASK_GPIO_3);
+
+*/
 	}
 	// Disconnected
 	else
