@@ -170,6 +170,46 @@ END_MESSAGE_MAP()
 
 // CDS4830A_srvDlg message handlers
 
+void CDS4830A_srvDlg::DDM_ConstructStateStr(st_AWFlags st_AWFlagsTemp, CString * str)
+{
+	CString strState;
+
+	if (st_AWFlagsTemp.isAW == 0)
+	{
+		// [NO AW FLAGS]
+		strState.Append(_T("оптимально"));
+	}
+	else
+	{
+		// [AW OCCURED]
+
+		// check each AW
+		if (st_AWFlagsTemp.bWL)
+		{
+			strState.Append(_T("[WL] "));
+		}
+
+		if (st_AWFlagsTemp.bWH)
+		{
+			strState.Append(_T("[WH] "));
+		}
+
+		if (st_AWFlagsTemp.bAL)
+		{
+			strState.Append(_T("[AL] "));
+		}
+
+		if (st_AWFlagsTemp.bAH)
+		{
+			strState.Append(_T("[AH] "));
+		}
+	}
+
+	// set output parameter
+	*str = strState;
+
+}
+
 // proceed DDM from Device tranfering by I2C
 void CDS4830A_srvDlg::DDM_Proceed()
 {
@@ -225,7 +265,7 @@ void CDS4830A_srvDlg::DDM_Proceed()
 		m_cPB_OP.SetPos(k * 4);
 	}
 */
-	m_GridSystem.DeviceSlave_Read(v_SlaveA2_LowerTable, SLAVEADDR_A2, 0, 127);
+	m_GridSystem.DeviceSlave_Read(v_SlaveA2_LowerTable, SLAVEADDR_A2, 0, 128);
 
 
 	// > Proceed Values
@@ -242,95 +282,587 @@ void CDS4830A_srvDlg::DDM_Proceed()
 
 	// get Labels
 	CWnd *pTEMPERATURE = this->GetDlgItem(IDC_STATIC_TEMPERATURE);
+	CWnd *pTEMPR_DDM = this->GetDlgItem(IDC_STATIC_TEMPR_DDM);
+	CWnd *pTEMPR_HEX = this->GetDlgItem(IDC_STATIC_TEMPR_HEX);
+	CWnd *pTEMPR_STATE = this->GetDlgItem(IDC_STATIC_TEMPR_STATE);
 	//	CWnd *pTEMPERATURE_WARN_MIN = this->GetDlgItem(IDC_STATIC_TEMPERATURE_WARN_MIN);
 	//	CWnd *pTEMPERATURE_WARN_MAX = this->GetDlgItem(IDC_STATIC_TEMPERATURE_WARN_MAX);
 	//	CWnd *pTEMPERATURE_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TEMPERATURE_ALERT_MIN);
 	//	CWnd *pTEMPERATURE_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TEMPERATURE_ALERT_MAX);
 
 	CWnd *pVCC = this->GetDlgItem(IDC_STATIC_VCC);
+	CWnd *pVCC_DDM = this->GetDlgItem(IDC_STATIC_VCC_DDM);
+	CWnd *pVCC_HEX = this->GetDlgItem(IDC_STATIC_VCC_HEX);
+	CWnd *pVCC_STATE = this->GetDlgItem(IDC_STATIC_VCC_STATE);
 	//	CWnd *pVCC_WARN_MIN = this->GetDlgItem(IDC_STATIC_VCC_WARN_MIN);
 	//	CWnd *pVCC_WARN_MAX = this->GetDlgItem(IDC_STATIC_VCC_WARN_MAX);
 	//	CWnd *pVCC_ALERT_MIN = this->GetDlgItem(IDC_STATIC_VCC_ALERT_MIN);
 	//	CWnd *pVCC_ALERT_MAX = this->GetDlgItem(IDC_STATIC_VCC_ALERT_MAX);
 
 	CWnd *pTX_BIAS = this->GetDlgItem(IDC_STATIC_TX_BIAS);
+	CWnd *pTX_BIAS_DDM = this->GetDlgItem(IDC_STATIC_TX_BIAS_DDM);
+	CWnd *pTX_BIAS_HEX = this->GetDlgItem(IDC_STATIC_TX_BIAS_HEX);
+	CWnd *pTX_BIAS_STATE = this->GetDlgItem(IDC_STATIC_TX_BIAS_STATE);
 	//	CWnd *pTX_BIAS_WARN_MIN = this->GetDlgItem(IDC_STATIC_TX_BIAS_WARN_MIN);
 	//	CWnd *pTX_BIAS_WARN_MAX = this->GetDlgItem(IDC_STATIC_TX_BIAS_WARN_MAX);
 	//	CWnd *pTX_BIAS_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TX_BIAS_ALERT_MIN);
 	//	CWnd *pTX_BIAS_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TX_BIAS_ALERT_MAX);
 
 	CWnd *pTX_POWER = this->GetDlgItem(IDC_STATIC_TX_POWER);
+	CWnd *pTX_POWER_DDM = this->GetDlgItem(IDC_STATIC_TX_POWER_DDM);
+	CWnd *pTX_POWER_HEX = this->GetDlgItem(IDC_STATIC_TX_POWER_HEX);
+	CWnd *pTX_POWER_STATE = this->GetDlgItem(IDC_STATIC_TX_POWER_STATE);
 	//	CWnd *pTX_POWER_WARN_MIN = this->GetDlgItem(IDC_STATIC_TX_POWER_WARN_MIN);
 	//	CWnd *pTX_POWER_WARN_MAX = this->GetDlgItem(IDC_STATIC_TX_POWER_WARN_MAX);
 	//	CWnd *pTX_POWER_ALERT_MIN = this->GetDlgItem(IDC_STATIC_TX_POWER_ALERT_MIN);
 	//	CWnd *pTX_POWER_ALERT_MAX = this->GetDlgItem(IDC_STATIC_TX_POWER_ALERT_MAX);
 
 	CWnd *pRX_POWER = this->GetDlgItem(IDC_STATIC_RX_POWER);
+	CWnd *pRX_POWER_DDM = this->GetDlgItem(IDC_STATIC_RX_POWER_DDM);
+	CWnd *pRX_POWER_HEX = this->GetDlgItem(IDC_STATIC_RX_POWER_HEX);
+	CWnd *pRX_POWER_STATE = this->GetDlgItem(IDC_STATIC_RX_POWER_STATE);
 	//	CWnd *pRX_POWER_WARN_MIN = this->GetDlgItem(IDC_STATIC_RX_POWER_WARN_MIN);
 	//	CWnd *pRX_POWER_WARN_MAX = this->GetDlgItem(IDC_STATIC_RX_POWER_WARN_MAX);
 	//	CWnd *pRX_POWER_ALERT_MIN = this->GetDlgItem(IDC_STATIC_RX_POWER_ALERT_MIN);
 	//	CWnd *pRX_POWER_ALERT_MAX = this->GetDlgItem(IDC_STATIC_RX_POWER_ALERT_MAX);
 
-	unsigned short iValue;
-	int icValue;
+	unsigned short uiValue;
+	int iValue;
+	float fValue;
 
 	CString str;
 
 	// > Real-Time Values
-	// get TEMPERATURE
+	// get [TEMPERATURE]
 	// FORMAT:
 	// 1Byte MSB = uChar, 1 Byte LSB = SFF_Fract
 	// 1Byte MSB 1x = 1Grad_Celc
-	iValue = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_MSB;
-	// convert to str
-	str.Format(L"%d", iValue);
-	// output
+	// 1Byte LSB 1x = 1 / 256
+	uiValue = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_MSB;
+
+	// output DDM-format
+	// // convert to str
+	str.Format(L"%d %d", x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_MSB, x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_LSB);
+
+	// // output to control
+	pTEMPR_DDM->SetWindowTextW(str);
+
+	// output User-format
+	fValue = uiValue;
+
+	float fValueTemp;
+	fValueTemp = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_LSB;
+	fValueTemp /= 256;
+
+	fValue += fValueTemp;
+
+	// // convert to str
+	str.Format(L"%02.1f", fValue);
+
+	// // output to control
 	pTEMPERATURE->SetWindowTextW(str);
 
-	// get VCC
+	// output HEX
+	str.Format(L"%02X%02X", x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_MSB, x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TEMPERATURE_LSB);
+
+	// // output to control
+	pTEMPR_HEX->SetWindowTextW(str);
+
+	// get [VCC]
 	// FORMAT:
 	// 2Byte Value
+
+	uiValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[1]);
+	
+	// output DDM-format
 	// 1x = 100uV
-	iValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[1]) / 10;
-	// convert to str
-	str.Format(L"%d", iValue);
-	// output
+	// // convert to str
+	str.Format(L"%d", uiValue);
+
+	// // output to control
+	pVCC_DDM->SetWindowTextW(str);
+
+	// output User-format
+	fValue = uiValue;
+	fValue /= 10000;
+
+	// // convert to str
+	str.Format(L"%01.2f", fValue);
+
+	// // output to control
 	pVCC->SetWindowTextW(str);
+
+	// output HEX
+	str.Format(L"%02X%02X", x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[0], x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.VCC[1]);
+
+	// // output to control
+	pVCC_HEX->SetWindowTextW(str);
+
 
 	// get TX_BIAS
 	// FORMAT:
 	// 2Byte Value
+	uiValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[1]); // *2;
+	
+	// output DDM-format
 	// 1x = 2uA
-	iValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[1]) * 2;
-	// convert to str
-	str.Format(L"%d", iValue);
-	// output
+	// // convert to str
+	str.Format(L"%d", uiValue);
+
+	// // output to control
+	pTX_BIAS_DDM->SetWindowTextW(str);
+
+	// output User-format
+	uiValue *= 2;
+	fValue = uiValue;
+	fValue /= 1000;
+
+	// // convert to str
+	str.Format(L"%3.1f", fValue);
+
+	// // output to control
 	pTX_BIAS->SetWindowTextW(str);
+																																							
+	// output HEX
+	str.Format(L"%02X%02X", x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[0], x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_BIAS[1]);
+
+	// // output to control
+	pTX_BIAS_HEX->SetWindowTextW(str);
+
 
 	// get TX_POWER
 	// FORMAT:
 	// 2Byte Value
-	// 1x = 0.1uW
-	icValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[1]) /10;
-	// convert to dBm
-	//icValue = 10 * log10(iValue);
+	uiValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[1]);
 
+	// output DDM-format
+	// 1x = 0.1uW
 	// convert to str
-	str.Format(L"%d", icValue);
-	// output
+	str.Format(L"%d", uiValue);
+
+	// // output to control
+	pTX_POWER_DDM->SetWindowTextW(str);
+
+	// output User-format
+	fValue = uiValue;
+	fValue /= 10000;
+
+	// // convert to dBm
+	fValue = log10(fValue);
+	fValue *= 10;
+
+	// // convert to str
+	str.Format(L"%02.1f", fValue);
+
+	// // output to control
 	pTX_POWER->SetWindowTextW(str);
+
+	// output HEX
+	str.Format(L"%02X%02X", x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[0], x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.TX_POWER[1]);
+
+	// // output to control
+	pTX_POWER_HEX->SetWindowTextW(str);
+
 
 	// get RX_POWER
 	// FORMAT:
 	// 2Byte Value
-	iValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[1]) / 10;
-	// convert to dBm
-//	iValue = 10 * log10(iValue);	
-	
+	uiValue = (x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[0] * 256 + x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[1]);
+
+	// output DDM-format
+	// 1x = 0.1uW
 	// convert to str
-	str.Format(L"%d", iValue);
-	// output
+	str.Format(L"%d", uiValue);
+
+	// // output to control
+	pRX_POWER_DDM->SetWindowTextW(str);
+
+	// output User-format
+	fValue = uiValue;
+	fValue /= 10000;
+
+	// // convert to dBm
+	fValue = log10(fValue);
+	fValue *= 10;
+
+	// // convert to str
+	str.Format(L"%02.1f", fValue);
+
+	// // output to control
 	pRX_POWER->SetWindowTextW(str);
+
+	// output HEX
+	str.Format(L"%02X%02X", x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[0], x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.DDM_ACTIVE.RX_POWER[1]);
+
+	// // output to control
+	pRX_POWER_HEX->SetWindowTextW(str);
+
+
+	// > ALARM & WARNING FLAGS
+	// NOTE:
+	// FORMAT:
+	/*
+	WARNING_FLAGS_1_bit:
+	7 = Temp_High_Warning
+	6 = Temp_Low_Warning
+	5 = Vcc_High_Warning
+	4 = Vcc_Low_Warning
+	3 = TX_Bias_High_Warning
+	2 = TX_Bias_Low_Warning
+	1 = TX_Power_High_Warning
+	0 = TX_Power_Low_Warning
+	
+	WARNING_FLAGS_2_bit:
+	7 = RX_Power_High_Warning
+	6 = RX_Power_Low_Warning
+	5-0 Reserved
+
+	ALARM_FLAGS_1_bit:
+	7 = Temp_High_Warning
+	6 = Temp_Low_Warning
+	5 = Vcc_High_Warning
+	4 = Vcc_Low_Warning
+	3 = TX_Bias_High_Warning
+	2 = TX_Bias_Low_Warning
+	1 = TX_Power_High_Warning
+	0 = TX_Power_Low_Warning
+
+	ALARM_FLAGS_2_bit:
+	7 = RX_Power_High_Warning
+	6 = RX_Power_Low_Warning
+	5-0 Reserved
+
+	*/ 
+
+	// vars for Temporary Charasteristic Flag State
+	st_AWFlags st_AWFlagsTemp;
+
+	// get ALARM & WARNING FLAG Values
+	BYTE icWarnings1 = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.WARNING_FLAGS_1_bit;
+	BYTE icWarnings2 = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.WARNING_FLAGS_2_bit;
+
+	BYTE icAlarms1 = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.ALARM_FLAGS_1_bit;
+	BYTE icAlarms2 = x_SlaveA2_LowerTable.st_MEMORY_MAP_A2_LOWER.ALARM_FLAGS_2_bit;
+
+	// proceed [Tempr] Flags
+	st_AWFlagsTemp.isAW = 0;
+
+	// // WH
+	if ((icWarnings1 & BITMASK_BIT7) != 0)
+	{
+		st_AWFlagsTemp.bWH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWH = 0;
+	}
+
+	// // WL
+	if ((icWarnings1 & BITMASK_BIT6) != 0)
+	{
+		st_AWFlagsTemp.bWL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWL = 0;
+	}
+
+	// // AH
+	if ((icAlarms1 & BITMASK_BIT7) != 0)
+	{
+		st_AWFlagsTemp.bAH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAH = 0;
+	}
+
+	// // AL
+	if ((icAlarms1 & BITMASK_BIT6) != 0)
+	{
+		st_AWFlagsTemp.bAL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAL = 0;
+	}
+
+	// output State
+	CString strState;
+
+	// // proceed str
+	this->DDM_ConstructStateStr(st_AWFlagsTemp, &strState);
+	
+	// // set control
+	pTEMPR_STATE->SetWindowTextW(strState);
+
+
+	// proceed [Voltage] Flags
+	st_AWFlagsTemp.isAW = 0;
+
+	// // WH
+	if ((icWarnings1 & BITMASK_BIT5) != 0)
+	{
+		st_AWFlagsTemp.bWH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWH = 0;
+	}
+
+	// // WL
+	if ((icWarnings1 & BITMASK_BIT4) != 0)
+	{
+		st_AWFlagsTemp.bWL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWL = 0;
+	}
+
+	// // AH
+	if ((icAlarms1 & BITMASK_BIT5) != 0)
+	{
+		st_AWFlagsTemp.bAH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAH = 0;
+	}
+
+	// // AL
+	if ((icAlarms1 & BITMASK_BIT4) != 0)
+	{
+		st_AWFlagsTemp.bAL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAL = 0;
+	}
+
+	// output State
+	strState.Truncate(0);
+
+	// // proceed str
+	this->DDM_ConstructStateStr(st_AWFlagsTemp, &strState);
+
+	// // set control
+	pVCC_STATE->SetWindowTextW(strState);
+
+
+	// proceed [Tx Power] Flags
+	st_AWFlagsTemp.isAW = 0;
+
+	// // WH
+	if ((icWarnings1 & BITMASK_BIT1) != 0)
+	{
+		st_AWFlagsTemp.bWH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWH = 0;
+	}
+
+	// // WL
+	if ((icWarnings1 & BITMASK_BIT0) != 0)
+	{
+		st_AWFlagsTemp.bWL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWL = 0;
+	}
+
+	// // AH
+	if ((icAlarms1 & BITMASK_BIT1) != 0)
+	{
+		st_AWFlagsTemp.bAH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAH = 0;
+	}
+
+	// // AL
+	if ((icAlarms1 & BITMASK_BIT0) != 0)
+	{
+		st_AWFlagsTemp.bAL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAL = 0;
+	}
+
+	// output State
+	strState.Truncate(0);
+
+	// // proceed str
+	this->DDM_ConstructStateStr(st_AWFlagsTemp, &strState);
+
+	// // set control
+	pTX_BIAS_STATE->SetWindowTextW(strState);
+
+
+	// proceed [Tx Power] Flags
+	st_AWFlagsTemp.isAW = 0;
+
+	// // WH
+	if ((icWarnings1 & BITMASK_BIT3) != 0)
+	{
+		st_AWFlagsTemp.bWH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWH = 0;
+	}
+
+	// // WL
+	if ((icWarnings1 & BITMASK_BIT2) != 0)
+	{
+		st_AWFlagsTemp.bWL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWL = 0;
+	}
+
+	// // AH
+	if ((icAlarms1 & BITMASK_BIT3) != 0)
+	{
+		st_AWFlagsTemp.bAH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAH = 0;
+	}
+
+	// // AL
+	if ((icAlarms1 & BITMASK_BIT2) != 0)
+	{
+		st_AWFlagsTemp.bAL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAL = 0;
+	}
+
+	// output State
+	strState.Truncate(0);
+
+	// // proceed str
+	this->DDM_ConstructStateStr(st_AWFlagsTemp, &strState);
+
+	// // set control
+	pTX_POWER_STATE->SetWindowTextW(strState);
+
+
+	// proceed [Rx Bias] Flags
+	st_AWFlagsTemp.isAW = 0;
+
+	// // WH
+	if ((icWarnings2 & BITMASK_BIT7) != 0)
+	{
+		st_AWFlagsTemp.bWH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWH = 0;
+	}
+
+	// // WL
+	if ((icWarnings2 & BITMASK_BIT6) != 0)
+	{
+		st_AWFlagsTemp.bWL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bWL = 0;
+	}
+
+	// // AH
+	if ((icAlarms2 & BITMASK_BIT7) != 0)
+	{
+		st_AWFlagsTemp.bAH = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAH = 0;
+	}
+
+	// // AL
+	if ((icAlarms2 & BITMASK_BIT6) != 0)
+	{
+		st_AWFlagsTemp.bAL = 1;
+		st_AWFlagsTemp.isAW = 1;
+	}
+	else
+	{
+		st_AWFlagsTemp.bAL = 0;
+	}
+
+	// output State
+	strState.Truncate(0);
+
+	// // proceed str
+	this->DDM_ConstructStateStr(st_AWFlagsTemp, &strState);
+
+	// // set control
+	pRX_POWER_STATE->SetWindowTextW(strState);
+
+
+
+	/*
+	if (st_AWFlagsTemp.isAW == 0)
+	{
+		// [NO AW FLAGS]
+		strState.Append(_T("оптимально"));
+	}
+	else
+	{
+		// [AW OCCURED]
+
+		// check each AW
+		if (st_AWFlagsTemp.bWL)
+		{
+			strState.Append(_T("[WL] "));
+		}
+
+		if (st_AWFlagsTemp.bWH)
+		{
+			strState.Append(_T("[WH] "));
+		}
+
+		if (st_AWFlagsTemp.bAL)
+		{
+			strState.Append(_T("[AL] "));
+		}
+
+		if (st_AWFlagsTemp.bAH)
+		{
+			strState.Append(_T("[AH] "));
+		}
+	}
+	*/
+
 
 /*
 	// > Warning Values
@@ -523,7 +1055,6 @@ BOOL CDS4830A_srvDlg::OnInitDialog()
 // -------------------------------------------------------------------
 // Table procedures
 // -------------------------------------------------------------------
-
 
 
 // -------------------------------------------------------------------
@@ -984,7 +1515,12 @@ void CDS4830A_srvDlg::OnNMClickTabDs4830a(NMHDR *pNMHDR, LRESULT *pResult)
 
 	default:
 
-		m_DS4830A_SFPP_TEC_APC.StopTimer();
+		// TEC Monitor Timer OP
+		if ((m_Mode == MD_PROGRAMMER) || (m_Mode == MD_ENGINEER))
+		{
+			m_DS4830A_SFPP_TEC_APC.StopTimer();
+		}
+		
 
 		break;
 	}

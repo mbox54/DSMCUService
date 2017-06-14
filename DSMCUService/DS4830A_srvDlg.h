@@ -36,6 +36,14 @@
 #define TIMER_ID_SYSTEM						0x01
 #define TIMER_ID_DDM						0x02
 
+#define BITMASK_BIT0						0x01
+#define BITMASK_BIT1						0x02
+#define BITMASK_BIT2						0x04
+#define BITMASK_BIT3						0x08
+#define BITMASK_BIT4						0x10
+#define BITMASK_BIT5						0x20
+#define BITMASK_BIT6						0x40
+#define BITMASK_BIT7						0x80
 
 
 // typedef for A2 DDM
@@ -259,6 +267,13 @@ typedef union
 } un_MEMORY_MAP_A2_LOWER;
 
 
+typedef struct st_AWFlags
+{
+	BYTE isAW;
+	BYTE bWL, bWH, bAL, bAH;
+};
+
+
 // ##########################################################################
 // CDS4830A_srvDlg dialog
 // ##########################################################################
@@ -354,6 +369,10 @@ public:
 
 	BOOL m_bCheck_Autoscan;
 	CStatic m_Static_Logo;
+
+	// > Procedures
+	// service
+	void DDM_ConstructStateStr(st_AWFlags st_AWFlagsTemp, CString * str);
 
 	// table ops
 	void DDM_Proceed();

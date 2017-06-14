@@ -85,36 +85,30 @@ void CDS4830A_SFPP_DDM::OnBnClickedButton4()
 	//Trace(_T("trying: READ\n"));
 	//Trace(_T("params: A0, 256 bytes\n"));
 	Trace(_T("ןמןûעךא: ×ÒÅÍÈÅ\n"));
-	Trace(_T("ןאנאלוענû: A2, 256 באיע\n"));
+	Trace(_T("ןאנאלוענû: A2, 96 באיע\n"));
 
 	// temp buffer for OP
 	BYTE v_Values[256];
 
 	// get Data from Device
-	BYTE retVal = m_Grid.DeviceSlave_Read(v_Values, SLAVEADDR_A2, 0, 256);
-
+	BYTE retVal = m_Grid.DeviceSlave_Read(v_Values, SLAVEADDR_A2, 0x00, 96);
+	
 	if (retVal != HID_SMBUS_SUCCESS)
 	{
 		// error: Device Read
 		Trace(_T("ÎØÈÁÊÀ. [ךמה: %02d] \n"), retVal);
-		return;
-
 	}
 	else
 	{
 		// output to Grid
-		m_Grid.GridSFF_Write(v_Values, 0, 256);
+		m_Grid.GridSFF_Write(v_Values, 0, 96);
+
+		m_GridDescr.UpdateTable_All(v_Values);
+		m_GridDescr.Invalidate(0);
+
+		Trace(_T("ÓÑÏÅØÍÎ.\n"));
 	}
 
-
-	//m_Grid.GridSFF_Read(v_Values, 0, 256);
-
-	m_GridDescr.UpdateTable_All(v_Values);
-	m_GridDescr.Invalidate(0);
-
-
-	//Trace(_T("SUCCESS! \n"));
-	Trace(_T("ÓÑÏÅØÍÎ.\n"));
 	Trace(_T("-----------------------\n"));
 }
 
@@ -122,12 +116,21 @@ void CDS4830A_SFPP_DDM::OnBnClickedButton4()
 void CDS4830A_SFPP_DDM::OnBnClickedButton5()
 {
 	// write op
-	m_Grid.DeviceSlave_WriteTimer(uValues, 0, SLAVEADDR_A2, 0, 256, 0, 0);
+	//m_Grid.DeviceSlave_WriteTimer(uValues, 0, SLAVEADDR_A2, 0, 256, 0, 0);
+
+	BYTE v_DDMValues[96];
+
+	// read from Grid
+	m_Grid.GridSFF_Read(v_DDMValues, 0, 96);
+
+	// Write to Device
+	BYTE retVal = m_Grid.DeviceSlave_Write(v_DDMValues, SLAVEADDR_A2, 0, 96);
+
 
 	// NOTE: debug from ver1.1 'DDM-auto' need more stability to Timer_R/W, so it replaces to previous
 
 	Trace(_T("ןמןûעךא: ÇÀÏÈÑÜ\n"));
-	Trace(_T("ןאנאלוענû: A2, 256 באיע\n"));
+	Trace(_T("ןאנאלוענû: A2, 96 באיע\n"));
 
 	/*
 
@@ -152,7 +155,18 @@ void CDS4830A_SFPP_DDM::OnBnClickedButton5()
 
 
 	*/
-	Trace(_T("ÓÑÏÅØÍÎ.\n"));
+
+	if (retVal != HID_SMBUS_SUCCESS)
+	{
+		// error: Device Write
+		Trace(_T("ÎØÈÁÊÀ. [ךמה: %02d] \n"), retVal);
+	}
+	else
+	{
+		Trace(_T("ÓÑÏÅØÍÎ.\n"));
+	}
+
+	
 	Trace(_T("-----------------------\n"));
 
 
@@ -520,4 +534,12 @@ void CDS4830A_SFPP_DDM::OnBnClickedButton7()
 	m_Grid.GridSFF_Write(v_CHK_curr, 95, 1);
 
 
+}
+
+
+void CDS4830A_SFPP_DDM::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialogEx::OnOK();
 }

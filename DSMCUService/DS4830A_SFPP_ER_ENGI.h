@@ -118,4 +118,5 @@ public:
 	afx_msg void OnBnClickedButtonModSet2();
 	afx_msg void OnBnClickedButtonConfWrite();
 	CString m_sEdit_PassValue;
+	virtual void OnOK();
 };

@@ -1978,3 +1978,11 @@ void CDS4830A_SFPP_CONF::OnBnClickedCheckBiasModDependance()
 {
 	// TODO: Add your control notification handler code here
 }
+
+
+void CDS4830A_SFPP_CONF::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialogEx::OnOK();
+}

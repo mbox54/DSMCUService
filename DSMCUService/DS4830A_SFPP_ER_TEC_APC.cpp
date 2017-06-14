@@ -22,6 +22,10 @@ CDS4830A_SFPP_ER_TEC_APC::CDS4830A_SFPP_ER_TEC_APC(CWnd* pParent /*=NULL*/)
 	, m_Edit_Tempr_Opt(_T(""))
 	, m_bCheck_Power(FALSE)
 	, m_bCheck_Photo(FALSE)
+	, m_GateC_P(_T(""))
+	, m_GateC_N(_T(""))
+	, m_GateH_P(_T(""))
+	, m_GateH_N(_T(""))
 {
 
 }
@@ -64,6 +68,7 @@ BEGIN_MESSAGE_MAP(CDS4830A_SFPP_ER_TEC_APC, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_POWER_ACTIVE, &CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckPowerActive)
 	ON_BN_CLICKED(IDC_CHECK_PHOTO_ACTIVE, &CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckPhotoActive)
 	ON_EN_CHANGE(IDC_EDIT_TEMPR_OPT, &CDS4830A_SFPP_ER_TEC_APC::OnEnChangeEditTemprOpt)
+	ON_BN_CLICKED(IDC_CHECK_TEC_HEAT, &CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecHeat)
 END_MESSAGE_MAP()
 
 
@@ -262,6 +267,26 @@ void CDS4830A_SFPP_ER_TEC_APC::Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC)
 	unsigned char ucTEC_HEATP = v_TEC_APC[0x03];
 	unsigned char ucTEC_HEATN = v_TEC_APC[0x04];
 
+	// set Edit output control
+	CString strGates;
+
+	// Gates Cool
+	strGates.Format(L"%d", ucTEC_COOLP);
+	this->m_GateC_P = strGates;
+
+	strGates.Truncate(0);
+	strGates.Format(L"%d", ucTEC_COOLN);
+	this->m_GateC_N = strGates;
+
+	// Gates Heat
+	strGates.Truncate(0);
+	strGates.Format(L"%d", ucTEC_HEATP);
+	this->m_GateH_P = strGates;
+
+	strGates.Truncate(0);
+	strGates.Format(L"%d", ucTEC_HEATN);
+	this->m_GateH_N = strGates;
+
 	// Set Slider output control
 	// // invert P_GATES Values (P-MOSFET open when U-)
 	ucTEC_COOLP = VALUE_TEC_GATEC_MAX - ucTEC_COOLP;
@@ -372,6 +397,12 @@ void CDS4830A_SFPP_ER_TEC_APC::Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC)
 	CWnd *pSliderPOWER = this->GetDlgItem(IDC_SLIDER_POWER);
 
 	// get Values
+	// Get TEC COOL/HEAT DAC Values
+	unsigned char ucAPC_PD_MON_ANODE = v_TEC_APC[0x14];
+	unsigned char ucAPC_PD_THRESHOLD01 = v_TEC_APC[0x16];
+	unsigned char ucAPC_PD_THRESHOLD02 = v_TEC_APC[0x17];
+	unsigned char ucAPC_PD_CORRECT_GAP = v_TEC_APC[0x18];
+
 	unsigned char ucAPC_Act = v_TEC_APC[0x10];
 	ucAPC_Act &= 0x01;
 	m_bCheck_Power = ucAPC_Act;
@@ -399,6 +430,10 @@ void CDS4830A_SFPP_ER_TEC_APC::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_TEMPR_OPT, m_Edit_Tempr_Opt);
 	DDX_Check(pDX, IDC_CHECK_POWER_ACTIVE, m_bCheck_Power);
 	DDX_Check(pDX, IDC_CHECK_PHOTO_ACTIVE, m_bCheck_Photo);
+	DDX_Text(pDX, IDC_EDIT_GATEC_P, m_GateC_P);
+	DDX_Text(pDX, IDC_EDIT_GATEC_N, m_GateC_N);
+	DDX_Text(pDX, IDC_EDIT_GATEH_P, m_GateH_P);
+	DDX_Text(pDX, IDC_EDIT_GATEH_N, m_GateH_N);
 }
 
 
@@ -590,6 +625,43 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecAct()
 }
 
 
+void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecHeat()
+{
+	unsigned char v_TEC_act[1];
+
+	// Get Control Value
+	UpdateData(TRUE);
+
+	m_Grid.GridSFF_Read(v_TEC_act, 0xC0, 1);
+
+	if (this->m_bCheck_TEC_heat)
+	{
+		// [TEC ENABLING]
+
+		// correct Value
+		v_TEC_act[0] |= 0x02;		// Set bit0 = 1
+
+
+	}
+	else
+	{
+		// [TEC DISABLING]
+
+		// correct Value
+		v_TEC_act[0] &= 0xFD;		// Set bit0 = 0
+	}
+
+	// Set Value to Grid
+	m_Grid.GridSFF_Write(v_TEC_act, 0xC0, 1);
+
+	UpdateData(FALSE);
+
+
+
+}
+
+
+
 void CDS4830A_SFPP_ER_TEC_APC::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
 	CDialogEx::OnActivate(nState, pWndOther, bMinimized);
@@ -672,7 +744,7 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckPhotoActive()
 
 	if (this->m_bCheck_Photo)
 	{
-		// [APC ENABLING]
+		// [APD ENABLING]
 
 		// correct Value
 		v_APC_act[0] |= 0x02;		// Set bit1 = 1
@@ -680,7 +752,7 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckPhotoActive()
 	}
 	else
 	{
-		// [APC DISABLING]
+		// [APD DISABLING]
 
 		// correct Value
 		v_APC_act[0] &= 0xFD;		// Set bit1 = 0
@@ -725,4 +797,12 @@ void CDS4830A_SFPP_ER_TEC_APC::OnEnChangeEditTemprOpt()
 
 	//MessageBox(str_TemprOpt_new);
 
+}
+
+
+void CDS4830A_SFPP_ER_TEC_APC::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialogEx::OnOK();
 }

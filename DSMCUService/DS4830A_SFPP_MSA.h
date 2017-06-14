@@ -74,4 +74,5 @@ public:
 	afx_msg void OnBnClickedButton5();
 
 	afx_msg void OnBnClickedButton6();
+	virtual void OnOK();
 };

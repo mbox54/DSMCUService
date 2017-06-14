@@ -36,6 +36,7 @@ public:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+	virtual void OnOK();
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
@@ -750,4 +751,12 @@ void CDSMCUServiceDlg::OnBnClickedButtonAdmin()
 	DS4830A_srvDlg.DoModal();
 
 	CDialogEx::OnOK();
+}
+
+
+void CAboutDlg::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialogEx::OnOK();
 }

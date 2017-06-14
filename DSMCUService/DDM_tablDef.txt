@@ -1,4 +1,4 @@
-MSA Table Description File
+﻿MSA Table Description File
 
 [version]
 1.0 
@@ -111,56 +111,56 @@ Bias Low Warning
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 24-25
-Bias Low Warning
+TX Power High Alarm
 2425
 *
 *
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 26-27
-Bias Low Warning
+TX Power Low Alarm
 2627
 *
 *
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 28-29
-Bias Low Warning
+TX Power High Warning
 2829
 *
 *
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 30-31
-Bias Low Warning
+TX Power Low Warning 
 3031
 *
 *
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 32-33
-Bias Low Warning
+RX Power High Alarm 
 3233
 *
 *
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 34-35
-Bias Low Warning
+RX Power Low Alarm 
 3435
 *
 *
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 36-37
-Bias Low Warning
+RX Power High Warning 
 3637
 *
 *
 Diagnostic Flag Alarm and Warning Thresholds (see Table 3.15)
 
 38-39
-Bias Low Warning
+RX Power Low Warning 
 3839
 *
 *

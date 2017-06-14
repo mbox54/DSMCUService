@@ -105,4 +105,10 @@ public:
 	afx_msg void OnEnChangeEditTablname();
 	afx_msg void OnEnChangeEditPasaddr();
 	afx_msg void OnEnChangeEditPasvalue();
+	virtual void OnOK();
+	BOOL m_bCheck_SelRange;
+	CString m_SelAddr;
+//	CEdit m;
+	CString m_SelCount;
+	BOOL m_bCheck_TabSelect;
 };

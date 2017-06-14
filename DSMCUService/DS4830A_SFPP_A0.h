@@ -97,4 +97,5 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 
+	virtual void OnOK();
 };

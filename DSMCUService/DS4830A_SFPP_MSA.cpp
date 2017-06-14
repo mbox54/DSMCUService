@@ -399,3 +399,11 @@ void CDS4830A_SFPP_MSA::OnBnClickedButton2()
 
 }
 
+
+
+void CDS4830A_SFPP_MSA::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialogEx::OnOK();
+}

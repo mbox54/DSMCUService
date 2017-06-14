@@ -19,6 +19,10 @@ CDS4830A_SFF_Custom::CDS4830A_SFF_Custom(CWnd* pParent /*=NULL*/)
 	, m_sEdit_PasValue(_T(""))
 	, m_sEdit_PasAddr(_T(""))
 	, m_bCheck_PasEnable(FALSE)
+	, m_bCheck_SelRange(FALSE)
+	, m_SelAddr(_T(""))
+	, m_SelCount(_T(""))
+	, m_bCheck_TabSelect(FALSE)
 {
 
 }
@@ -57,6 +61,13 @@ void CDS4830A_SFF_Custom::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_TABLNAME, m_Edit_TableName);
 	DDX_Control(pDX, IDC_EDIT_PASADDR, m_Edit_PasAddr);
 	DDX_Control(pDX, IDC_EDIT_PASVALUE, m_Edit_PasValue);
+	DDX_Check(pDX, IDC_CHECK_SELENABLE, m_bCheck_SelRange);
+	DDX_Text(pDX, IDC_EDIT_SELADDR, m_SelAddr);
+	//  DDV_MaxChars(pDX, m_SelAddr, 2);
+	//  DDX_Control(pDX, IDC_EDIT_SELCNT, m);
+	DDX_Text(pDX, IDC_EDIT_SELCNT, m_SelCount);
+	DDV_MaxChars(pDX, m_SelCount, 3);
+	DDX_Check(pDX, IDC_CHECK_TABENABLE, m_bCheck_TabSelect);
 }
 
 
@@ -236,6 +247,22 @@ void CDS4830A_SFF_Custom::OnBnClickedButton4()
 	BYTE uPAS_ADDR = (BYTE)_tcstoul(m_sEdit_PasAddr, NULL, 16);
 	//BYTE uPAS_VALUE = (BYTE)_tcstoul(m_SLA_ADDR, NULL, 16);
 
+	BYTE uSEL_ADDR = (BYTE)_tcstoul(m_SelAddr, NULL, 16);
+	WORD uSEL_CNT = (WORD)_tcstoul(m_SelCount, NULL, 10);
+
+	// check Table Select
+	if (m_bCheck_TabSelect)
+	{
+		// send Table
+		// write tabl in Device
+		BYTE v_TablName[1] = { uTABL_NAME };
+
+		m_Grid.DeviceSlave_Write(v_TablName, uSLA_ADDR, uTABL_ADDR, 1);
+
+		Sleep(30);
+	}
+
+
 	// Check for Password 
 	if (this->m_bCheck_PasEnable)
 	{
@@ -263,7 +290,7 @@ void CDS4830A_SFF_Custom::OnBnClickedButton4()
 
 		// send password
 		// write pass in Device
-		m_Grid.DeviceSlave_Write(v_PassSymbols, 0xA2, uPAS_ADDR, 4);
+		m_Grid.DeviceSlave_Write(v_PassSymbols, uSLA_ADDR, uPAS_ADDR, 4);
 
 	}
 
@@ -275,20 +302,186 @@ void CDS4830A_SFF_Custom::OnBnClickedButton4()
 		check_result = 0x11;
 	}
 
+	BYTE ucAddrStart = 0;
+	WORD uiAddrCount = 256;
+
+	// check Address Select
+	if (this->m_bCheck_SelRange)
+	{
+		// SafeCheck
+		if (uSEL_ADDR < 0x100)
+		{
+			ucAddrStart = uSEL_ADDR;
+		}
+
+		if (uSEL_CNT <= 256)
+		{
+			if (uSEL_ADDR + uSEL_CNT > 0x100)
+			{
+				uiAddrCount = 0x100 - ucAddrStart;
+			}
+			else
+			{
+				uiAddrCount = uSEL_CNT;
+			}
+		}
+	}
+
 	// Read op
-	m_Grid.DeviceSlave_ReadTimer(uValues, 1, uSLA_ADDR, 0, 256, uTABL_ADDR, uTABL_NAME);
+	Sleep(10);
+
+	p_cPB_OP->SetPos(0);
+
+	BYTE v_ReadBytes[256];
+
+	// init with previous
+//	m_Grid.GridSFF_Read(v_ReadBytes, 0, 256);
+
+	// Read Selected
+	m_Grid.DeviceSlave_Read(v_ReadBytes, uSLA_ADDR, ucAddrStart, uiAddrCount);
+
+	p_cPB_OP->SetPos(100);
+
+	// Set output
+	m_Grid.GridSFF_Write(v_ReadBytes, ucAddrStart, uiAddrCount);
 
 	UpdateData(FALSE);
-
-	
 
 }
 
 // Write Table Procedure
 void CDS4830A_SFF_Custom::OnBnClickedButton5()
 {
-	// write op
-	m_Grid.DeviceSlave_WriteTimer(uValues, 1, SLAVEADDR_A2, 0, 256, 0x7F, 0x0A);
+	UpdateData(TRUE);
+
+	// get options
+	BYTE uSLA_ADDR = (BYTE)_tcstoul(m_SLA_ADDR, NULL, 16);
+	BYTE uTABL_ADDR = (BYTE)_tcstoul(m_TABL_ADDR, NULL, 16);
+	BYTE uTABL_NAME = (BYTE)_tcstoul(m_TABL_NAME, NULL, 16);
+
+	BYTE uPAS_ADDR = (BYTE)_tcstoul(m_sEdit_PasAddr, NULL, 16);
+	//BYTE uPAS_VALUE = (BYTE)_tcstoul(m_SLA_ADDR, NULL, 16);
+
+	BYTE uSEL_ADDR = (BYTE)_tcstoul(m_SelAddr, NULL, 16);
+	WORD uSEL_CNT = (WORD)_tcstoul(m_SelCount, NULL, 10);
+
+	// check Table Select
+	if (m_bCheck_TabSelect)
+	{
+		// send Table
+		// write tabl in Device
+		BYTE v_TablName[1] = { uTABL_NAME };
+
+		m_Grid.DeviceSlave_Write(v_TablName, uSLA_ADDR, uTABL_ADDR, 1);
+
+		Sleep(30);
+	}
+
+	// Check for Password 
+	if (this->m_bCheck_PasEnable)
+	{
+		unsigned char v_PassSymbols[4];
+		// get Password Bytes
+		CString strHex;
+
+		for (unsigned char k = 0; k < 4; k++)
+		{
+			char cPassLetter[2];
+			cPassLetter[0] = m_sEdit_PasValue[k * 2];
+			cPassLetter[1] = m_sEdit_PasValue[k * 2 + 1];
+
+			strHex.AppendChar(cPassLetter[0]);
+			strHex.AppendChar(cPassLetter[1]);
+
+			// convert to Byte
+			unsigned char byte_passLetter;
+			byte_passLetter = (BYTE)_tcstoul(strHex, NULL, 16);
+
+			v_PassSymbols[k] = byte_passLetter;
+
+			strHex.Truncate(0);
+		}
+
+		// send password
+		// write pass in Device
+		m_Grid.DeviceSlave_Write(v_PassSymbols, uSLA_ADDR, uPAS_ADDR, 4);
+
+	}
+
+	// > Write
+	unsigned char v_WrByte8[8];
+	BYTE v_WriteBytes[256];
+
+	BYTE ucAddrStart = 0;
+	WORD uiAddrCount = 256;
+
+	// check Select
+	if (this->m_bCheck_SelRange)
+	{
+		// SafeCheck
+		if (uSEL_ADDR < 0x100)
+		{
+			ucAddrStart = uSEL_ADDR;
+		}
+
+		if (uSEL_CNT <= 256)
+		{
+			if (uSEL_ADDR + uSEL_CNT > 0x100)
+			{
+				uiAddrCount = 0x100 - ucAddrStart;
+			}
+			else
+			{
+				uiAddrCount = uSEL_CNT;
+			}
+		}
+	}
+
+	p_cPB_OP->SetPos(40);
+
+	// get Values
+	m_Grid.GridSFF_Read(v_WriteBytes, ucAddrStart, uiAddrCount);
+
+	BYTE byteBlock_cnt = uiAddrCount / 8;
+	BYTE byteBlock_lst = uiAddrCount - byteBlock_cnt * 8;
+
+	// Write to Device
+	if (byteBlock_cnt > 0)
+	{
+		for (int k = 0; k < byteBlock_cnt; k++)
+		{
+			// prepare write buffer
+			for (int k2 = 0; k2 < 8; k2++)
+			{
+				v_WrByte8[k2] = v_WriteBytes[k * 8 + k2];
+			}
+
+			// i2c write
+			// NOTE: 8byte mode
+			m_Grid.DeviceSlave_Write(v_WrByte8, uSLA_ADDR, ucAddrStart + k * 8, 8);
+
+			// output progress
+			p_cPB_OP->SetPos(40 + k * 7);
+
+			Sleep(10);
+		}
+	}
+
+	if (byteBlock_lst > 0)
+	{
+		// prepare write buffer
+		for (int k2 = 0; k2 < byteBlock_lst; k2++)
+		{
+			v_WrByte8[k2] = v_WriteBytes[byteBlock_cnt * 8 + k2];
+		}
+
+		// i2c write
+		// NOTE: 8byte mode
+		m_Grid.DeviceSlave_Write(v_WrByte8, uSLA_ADDR, ucAddrStart + byteBlock_cnt * 8, byteBlock_lst);
+
+	}
+
+	p_cPB_OP->SetPos(100);
 
 }
 
@@ -328,4 +521,12 @@ void CDS4830A_SFF_Custom::OnEnChangeEditPasaddr()
 void CDS4830A_SFF_Custom::OnEnChangeEditPasvalue()
 {
 	this->EditHexControl(&m_Edit_PasValue);
+}
+
+
+void CDS4830A_SFF_Custom::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialog::OnOK();
 }

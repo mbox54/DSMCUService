@@ -1541,3 +1541,11 @@ BOOL CDS4830A_SFPP_LR_CONF_ENGI::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
 }
+
+
+void CDS4830A_SFPP_LR_CONF_ENGI::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialogEx::OnOK();
+}

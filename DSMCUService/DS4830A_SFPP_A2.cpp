@@ -425,3 +425,11 @@ void CDS4830A_SFPP_A2::OnBnClickedButton5()
 
 
 
+
+
+void CDS4830A_SFPP_A2::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialog::OnOK();
+}

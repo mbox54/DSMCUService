@@ -377,3 +377,11 @@ void CDS4830A_SFPP_A0::OnBnClickedButton5()
 	Trace(_T("-----------------------\n"));
 }
 
+
+
+void CDS4830A_SFPP_A0::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	// CDialog::OnOK();
+}

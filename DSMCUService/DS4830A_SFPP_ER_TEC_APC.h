@@ -131,4 +131,10 @@ public:
 	afx_msg void OnBnClickedCheckPowerActive();
 	afx_msg void OnBnClickedCheckPhotoActive();
 	afx_msg void OnEnChangeEditTemprOpt();
+	virtual void OnOK();
+	afx_msg void OnBnClickedCheckTecHeat();
+	CString m_GateC_P;
+	CString m_GateC_N;
+	CString m_GateH_P;
+	CString m_GateH_N;
 };
