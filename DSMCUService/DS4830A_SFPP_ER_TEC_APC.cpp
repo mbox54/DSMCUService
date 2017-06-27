@@ -26,6 +26,8 @@ CDS4830A_SFPP_ER_TEC_APC::CDS4830A_SFPP_ER_TEC_APC(CWnd* pParent /*=NULL*/)
 	, m_GateC_N(_T(""))
 	, m_GateH_P(_T(""))
 	, m_GateH_N(_T(""))
+	, m_Edit_Power_Opt(_T(""))
+	, m_Edit_Power_Gap(_T(""))
 {
 
 }
@@ -188,11 +190,23 @@ void CDS4830A_SFPP_ER_TEC_APC::ReadDevice()
 
 	p_cPB_OP->SetPos(100);
 
+	// > Get ONET Bias Value
+	unsigned char v_Bias[2];
+	m_Grid.DeviceSlave_Read(v_Bias, SLAVEADDR_A2, 0x8F, 2);
+
+	// format Value
+	WORD uiBiasVal;
+
+	uiBiasVal = v_Bias[0];
+	uiBiasVal = uiBiasVal << 2;
+	uiBiasVal += (v_Bias[1] & 0x03);
+
 
 	// > Config other output Controls
-	Set_TEC_APC_Ctrls(v_TEC_APC);
+	Set_TEC_APC_Ctrls(v_TEC_APC, uiBiasVal);
 
 }
+
 
 void CDS4830A_SFPP_ER_TEC_APC::WriteDevice()
 {
@@ -240,7 +254,7 @@ void CDS4830A_SFPP_ER_TEC_APC::WriteDevice()
 
 }
 
-void CDS4830A_SFPP_ER_TEC_APC::Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC)
+void CDS4830A_SFPP_ER_TEC_APC::Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC, WORD uiBias)
 {
 	// > TEC Controls PROC
 	unsigned char ucTECStatus = 0;
@@ -398,7 +412,7 @@ void CDS4830A_SFPP_ER_TEC_APC::Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC)
 
 	// get Values
 	// Get TEC COOL/HEAT DAC Values
-	unsigned char ucAPC_PD_MON_ANODE = v_TEC_APC[0x14];
+	unsigned char ucAPC_PD_MON_ANODE =	 v_TEC_APC[0x14];
 	unsigned char ucAPC_PD_THRESHOLD01 = v_TEC_APC[0x16];
 	unsigned char ucAPC_PD_THRESHOLD02 = v_TEC_APC[0x17];
 	unsigned char ucAPC_PD_CORRECT_GAP = v_TEC_APC[0x18];
@@ -411,8 +425,39 @@ void CDS4830A_SFPP_ER_TEC_APC::Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC)
 	ucAPC_Act &= 0x02;
 	m_bCheck_Photo = ucAPC_Act;
 
-	// NOTE: Bit0 = APC_EN, Bit1 = APD_EN
+	// output Current Power Value
+	CString strThreshold;
 
+	// get Static components
+	CWnd *pStaticPOWER_Cur = this->GetDlgItem(IDC_STATIC_POWER_CUR);
+	
+	WORD uiAPC_PD_MON_ANODE_Formatted = ucAPC_PD_MON_ANODE * 200;
+
+	strThreshold.Format(L"%d", uiAPC_PD_MON_ANODE_Formatted);
+	pStaticPOWER_Cur->SetWindowTextW(strThreshold);
+
+	// output Threshold Value
+	WORD threshold_word;
+	threshold_word = ucAPC_PD_THRESHOLD01;
+	threshold_word = threshold_word << 8;
+	threshold_word += ucAPC_PD_THRESHOLD02;
+
+	// // set Edit output control
+	strThreshold.Format(L"%d", threshold_word);
+	this->m_Edit_Power_Opt = strThreshold;
+
+	// output CorrectGap Value
+	strThreshold.Truncate(0);
+	strThreshold.Format(L"%d", ucAPC_PD_CORRECT_GAP);
+	this->m_Edit_Power_Gap = strThreshold;;
+
+	// NOTE: Bit0 = APC_EN, Bit1 = APD_EN
+	// get Static components
+	CWnd *pStaticPOWER_Cur_Bias = this->GetDlgItem(IDC_STATIC_POWER_CUR_BIAS);
+
+	strThreshold.Truncate(0);
+	strThreshold.Format(L"%d", uiBias);
+	pStaticPOWER_Cur_Bias->SetWindowTextW(strThreshold);
 
 	UpdateData(FALSE);
 
@@ -434,6 +479,8 @@ void CDS4830A_SFPP_ER_TEC_APC::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_GATEC_N, m_GateC_N);
 	DDX_Text(pDX, IDC_EDIT_GATEH_P, m_GateH_P);
 	DDX_Text(pDX, IDC_EDIT_GATEH_N, m_GateH_N);
+	DDX_Text(pDX, IDC_EDIT_POWER_OPT, m_Edit_Power_Opt);
+	DDX_Text(pDX, IDC_EDIT_POWER_GAP, m_Edit_Power_Gap);
 }
 
 
@@ -475,6 +522,7 @@ void CDS4830A_SFPP_ER_TEC_APC::StartTimer()
 	pButton1->EnableWindow(FALSE);
 	pButton2->EnableWindow(TRUE);
 
+	// Proc Timer OP
 	this->OnBnClickedButton4();
 }
 
@@ -584,13 +632,13 @@ void CDS4830A_SFPP_ER_TEC_APC::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pS
 
 	} //(pScrollBar == pSliderTEMPR)
 
-
 	UpdateData(FALSE);
 
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
 
+// Set output control CHECK / [TEC EN]
 void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecAct()
 {
 	unsigned char v_TEC_act[1];
@@ -606,7 +654,6 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecAct()
 
 		// correct Value
 		v_TEC_act[0] |= 0x01;		// Set bit0 = 1
-
 
 	}
 	else
@@ -625,6 +672,7 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecAct()
 }
 
 
+// Set output control CHECK / [TEC HT]
 void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecHeat()
 {
 	unsigned char v_TEC_act[1];
@@ -655,8 +703,6 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckTecHeat()
 	m_Grid.GridSFF_Write(v_TEC_act, 0xC0, 1);
 
 	UpdateData(FALSE);
-
-
 
 }
 
@@ -700,6 +746,7 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedButton2()
 }
 
 
+// Set output control CHECK / [APC]
 void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckPowerActive()
 {
 	unsigned char v_APC_act[1];
@@ -732,7 +779,7 @@ void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckPowerActive()
 
 }
 
-
+// Set output control CHECK / [APD]
 void CDS4830A_SFPP_ER_TEC_APC::OnBnClickedCheckPhotoActive()
 {
 	unsigned char v_APC_act[1];
@@ -806,3 +853,9 @@ void CDS4830A_SFPP_ER_TEC_APC::OnOK()
 
 	// CDialogEx::OnOK();
 }
+
+// TODO:
+// Get BIAL Value from ONET
+// Write Threshold(1-2)
+// Write Gap
+// Monitor Slider Output controlles

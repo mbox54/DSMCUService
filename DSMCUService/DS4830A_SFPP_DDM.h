@@ -20,7 +20,8 @@ class CDS4830A_SFPP_DDM : public CDialogEx
 	DECLARE_DYNAMIC(CDS4830A_SFPP_DDM)
 
 public:
-	CDS4830A_SFPP_DDM(CWnd* pParent = NULL);   // standard constructor
+	// standard constructor
+	CDS4830A_SFPP_DDM(CWnd* pParent = NULL);   
 
 	CDS4830A_SFPP_DDM(HID_SMBUS_DEVICE * pHidSmbus, CProgressCtrl * p_cPB_OP, CEdit * p_EDIT_STATUS, st_serviceData * p_service, CWnd * pParent = NULL);
 	virtual ~CDS4830A_SFPP_DDM();

@@ -36,6 +36,7 @@ CDS4830A_srvDlg::CDS4830A_srvDlg(HID_SMBUS_DEVICE * pHidSmbus, BYTE mode, CWnd* 
 	, m_DS4830A_SFPP_MSA(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
 	, m_DS4830A_SFPP_DDM(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
 	, m_DS4830A_SFPP_TEC_APC(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
+	, m_TB_SFP_R2(m_pHidSmbus)
 
 
 {
@@ -81,16 +82,18 @@ void CDS4830A_srvDlg::InitDlgTabs()
 	switch (m_Mode)
 	{
 	case MD_PROGRAMMER:
-		m_tabCtrl_DS4830A.InsertItem(0, _T("Flasher"), IDD_PROPPAGE_BOOTLOAD, &m_pageDSBootLoader);
-		m_tabCtrl_DS4830A.InsertItem(1, _T("A0"), IDD_PROPPAGE_DS4830A_SFPP_A0, &m_DS4830A_SFPP_A0);
-		m_tabCtrl_DS4830A.InsertItem(2, _T("A2"), IDD_PROPPAGE_DS4830A_SFPP_A2, &m_DS4830A_SFPP_A2);
-		m_tabCtrl_DS4830A.InsertItem(3, _T("ONET1130_ENGI"), IDD_PROPPAGE_DS4830A_SFPP_ER_ENGI, &m_DS4830A_SFPP_T10);
-		m_tabCtrl_DS4830A.InsertItem(4, _T("GN1157"), IDD_PROPPAGE_DS4830A_SFPP_LR_CONF_OPER, &m_DS4830A_SFPP_LR_CONF_OPER);
-		m_tabCtrl_DS4830A.InsertItem(5, _T("GN1157_ENGI"), IDD_PROPPAGE_DS4830A_SFPP_LR_CONF_ENGI, &m_DS4830A_SFPP_LR_CONF_ENGI);
-		m_tabCtrl_DS4830A.InsertItem(6, _T("Custom"), IDD_PROPPAGE_DS4830A_SFPP_CUSTOM, &m_DS4830A_SFPP_Custom);
-		m_tabCtrl_DS4830A.InsertItem(7, _T("MSA"), IDD_PROPPAGE_DS4830A_SFPP_MSA, &m_DS4830A_SFPP_MSA);
-		m_tabCtrl_DS4830A.InsertItem(8, _T("DDM"), IDD_PROPPAGE_DS4830A_SFPP_DDM, &m_DS4830A_SFPP_DDM);
-		m_tabCtrl_DS4830A.InsertItem(9, _T("TEC APC"), IDD_PROPPAGE_DS4830A_SFPP_ER_TEC_APC, &m_DS4830A_SFPP_TEC_APC);
+		m_tabCtrl_DS4830A.InsertItem(0,  _T("Flasher"), IDD_PROPPAGE_BOOTLOAD, &m_pageDSBootLoader);
+		m_tabCtrl_DS4830A.InsertItem(1,  _T("A0"), IDD_PROPPAGE_DS4830A_SFPP_A0, &m_DS4830A_SFPP_A0);
+		m_tabCtrl_DS4830A.InsertItem(2,  _T("A2"), IDD_PROPPAGE_DS4830A_SFPP_A2, &m_DS4830A_SFPP_A2);
+		m_tabCtrl_DS4830A.InsertItem(3,  _T("ONET1130_ENGI"), IDD_PROPPAGE_DS4830A_SFPP_ER_ENGI, &m_DS4830A_SFPP_T10);
+		m_tabCtrl_DS4830A.InsertItem(4,  _T("GN1157"), IDD_PROPPAGE_DS4830A_SFPP_LR_CONF_OPER, &m_DS4830A_SFPP_LR_CONF_OPER);
+		m_tabCtrl_DS4830A.InsertItem(5,  _T("GN1157_ENGI"), IDD_PROPPAGE_DS4830A_SFPP_LR_CONF_ENGI, &m_DS4830A_SFPP_LR_CONF_ENGI);
+		m_tabCtrl_DS4830A.InsertItem(6,  _T("Custom"), IDD_PROPPAGE_DS4830A_SFPP_CUSTOM, &m_DS4830A_SFPP_Custom);
+		m_tabCtrl_DS4830A.InsertItem(7,  _T("MSA"), IDD_PROPPAGE_DS4830A_SFPP_MSA, &m_DS4830A_SFPP_MSA);
+		m_tabCtrl_DS4830A.InsertItem(8,  _T("DDM"), IDD_PROPPAGE_DS4830A_SFPP_DDM, &m_DS4830A_SFPP_DDM);
+		m_tabCtrl_DS4830A.InsertItem(9,  _T("TEC APC"), IDD_PROPPAGE_DS4830A_SFPP_ER_TEC_APC, &m_DS4830A_SFPP_TEC_APC);
+		m_tabCtrl_DS4830A.InsertItem(10, _T("TBSFP+ r2"), IDD_PROPPAGE_TB_SFP_R2, &m_TB_SFP_R2);
+
 		break;
 
 	case MD_ENGINEER:
@@ -104,6 +107,7 @@ void CDS4830A_srvDlg::InitDlgTabs()
 		m_tabCtrl_DS4830A.InsertItem(7, _T("MSA"), IDD_PROPPAGE_DS4830A_SFPP_MSA, &m_DS4830A_SFPP_MSA);
 		m_tabCtrl_DS4830A.InsertItem(8, _T("DDM"), IDD_PROPPAGE_DS4830A_SFPP_DDM, &m_DS4830A_SFPP_DDM);
 		m_tabCtrl_DS4830A.InsertItem(9, _T("TEC APC"), IDD_PROPPAGE_DS4830A_SFPP_ER_TEC_APC, &m_DS4830A_SFPP_TEC_APC);
+		m_tabCtrl_DS4830A.InsertItem(10, _T("TBSFP+ r2"), IDD_PROPPAGE_TB_SFP_R2, &m_TB_SFP_R2);
 
 		break;
 
@@ -1511,16 +1515,30 @@ void CDS4830A_srvDlg::OnNMClickTabDs4830a(NMHDR *pNMHDR, LRESULT *pResult)
 
 		m_DS4830A_SFPP_TEC_APC.StartTimer();
 
+		m_TB_SFP_R2.StopTimer();
+
 		break;
+
+	case 10:	//m_DS4830A_SFPP_TEC_APC	
+
+		m_TB_SFP_R2.StartTimer();
+
+		m_DS4830A_SFPP_TEC_APC.StopTimer();
+
+		break;
+
+
 
 	default:
 
 		// TEC Monitor Timer OP
+		// TestBoard Monitor OP
 		if ((m_Mode == MD_PROGRAMMER) || (m_Mode == MD_ENGINEER))
 		{
 			m_DS4830A_SFPP_TEC_APC.StopTimer();
+
+			m_TB_SFP_R2.StopTimer();
 		}
-		
 
 		break;
 	}

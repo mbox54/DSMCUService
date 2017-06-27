@@ -70,9 +70,9 @@ protected:
 	void Trace(LPCTSTR szFmt, ...);
 
 	// Grid events
-	afx_msg void OnGridClick(NMHDR *pNotifyStruct, LRESULT* pResult);
-	afx_msg void OnGrid2Click(NMHDR *pNotifyStruct, LRESULT * pResult);
-	afx_msg void OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT* pResult);
+	afx_msg void OnGridClick(NMHDR * pNotifyStruct, LRESULT * pResult);
+	afx_msg void OnGrid2Click(NMHDR * pNotifyStruct, LRESULT * pResult);
+	afx_msg void OnGridEndEdit(NMHDR * pNotifyStruct, LRESULT * pResult);
 	afx_msg void OnGrid2EndEdit(NMHDR * pNotifyStruct, LRESULT * pResult);
 
 	virtual BOOL OnInitDialog();

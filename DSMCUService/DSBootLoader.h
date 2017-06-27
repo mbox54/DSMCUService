@@ -85,7 +85,8 @@ class CDSBootLoader : public CDialog
 public:
 	// Constructors
 	CDSBootLoader(CWnd* pParent = NULL);   // standard constructor
-	CDSBootLoader(HID_SMBUS_DEVICE* pHidSmbus, CWnd* pParent = NULL);   
+	CDSBootLoader(HID_SMBUS_DEVICE* pHidSmbus, CWnd* pParent = NULL); 
+
 	virtual ~CDSBootLoader();
 
 	// Dialog Data

@@ -1,4 +1,8 @@
 #pragma once
+
+/////////////////////////////////////////////////////////////////////////////
+// Includes
+/////////////////////////////////////////////////////////////////////////////
 #include "GridSFF_CP2112.h"
 #include "afxcmn.h"
 
@@ -6,7 +10,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // Definitions
 /////////////////////////////////////////////////////////////////////////////
-
 #define OP_SUCCESS				0x00
 #define OP_FAILED				0x01
 
@@ -75,7 +78,7 @@ protected:
 	void ReadDevice();
 	void WriteDevice();
 
-	void Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC);
+	void Set_TEC_APC_Ctrls(unsigned char * v_TEC_APC, WORD uiBias);
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
@@ -137,4 +140,6 @@ public:
 	CString m_GateC_N;
 	CString m_GateH_P;
 	CString m_GateH_N;
+	CString m_Edit_Power_Opt;
+	CString m_Edit_Power_Gap;
 };

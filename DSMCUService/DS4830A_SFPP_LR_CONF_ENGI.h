@@ -80,7 +80,7 @@ protected:
 	void EditHexControl(CEdit *pEdit);
 
 	// Table File OP
-	int TableValues_LoadFromFile(BYTE * v_ByteData);
+	int TableValues_LoadFromFile(char * v_filename, BYTE * v_ByteData);
 	int TableValues_SaveToFile(BYTE * v_ByteData);
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

@@ -224,19 +224,20 @@ BOOL CDSMCUServiceDlg::Connect()
 		// > Set GPIO Config
 		// GPIO3 = 0 / GND
 //		HID_SMBUS_STATUS status = HidSmbus_WriteLatch(*&m_hidSmbus, 1, 0xE8);
-/*
+
 		BYTE mode = 0x00;
 		BYTE function = 0x00;
-		BYTE direction = 0x00;	
+		BYTE direction = 0xA8;	
 		// NOTE: 0 = input, 1 = output
 
 		// Set GPIO direction and mode bitmasks
 		HID_SMBUS_STATUS status = HidSmbus_SetGpioConfig(m_hidSmbus, direction, mode, function, 0);
 
+		// init
 		status = HidSmbus_WriteLatch(m_hidSmbus, 0x00, 0xFF);
 //		status = HidSmbus_WriteLatch(m_hidSmbus, 0, HID_SMBUS_MASK_GPIO_3);
 
-*/
+
 	}
 	// Disconnected
 	else
@@ -673,6 +674,18 @@ void CDSMCUServiceDlg::OnBnClickedOk()
 	CDialogEx::OnOK();
 }
 
+
+
+// NOTE:
+// 
+// GIPO.0 Ц Tx Toggle config.
+// GPIO.1 Ц Rx Toggle config.
+// GPIO.2 Ц Input.Tx Fault. 1 Ц ошибка в работе передатчика, 0 Ц все нормально.
+// GPIO.3 Ц Output.Tx Disable.Open - Drain. 1 Ц отключение лазера, 0 Ц включение.
+// GPIO.4 Ц Input.Mod ABS. 1 Ц модуль отсутствует, 0 Ц модуль присутствует.
+// GPIO.5 Ц Output.RS0.Open - Drain.ƒва состо€ни€ 1 и 0. –еализовать галочку.
+// GPIO.6 Ц Input.Rx LOS. 1 Ц сигнал на приеме ниже дозволенного уровн€, 0 Ц все нормально.
+// GPIO.7 Ц Output.RS1.Open - Drain.ƒва состо€ни€ 1 и 0. –еализовать галочку.
 
 void CDSMCUServiceDlg::OnBnClickedCheckConnect()
 {

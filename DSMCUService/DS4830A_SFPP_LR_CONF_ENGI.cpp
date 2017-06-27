@@ -316,7 +316,7 @@ void CDS4830A_SFPP_LR_CONF_ENGI::EditHexControl(CEdit * pEdit)
 
 }
 
-int CDS4830A_SFPP_LR_CONF_ENGI::TableValues_LoadFromFile(BYTE * v_ByteData)
+int CDS4830A_SFPP_LR_CONF_ENGI::TableValues_LoadFromFile(char * v_filename, BYTE * v_ByteData)
 {
 	// CONST
 	const unsigned char uLineCount = 16;
@@ -339,20 +339,72 @@ int CDS4830A_SFPP_LR_CONF_ENGI::TableValues_LoadFromFile(BYTE * v_ByteData)
 
 	// [#] FILE OP CHECK
 	// > Define Filename
-	CString str_filename("test.conf");
-	char *file_name = "test.conf";
+
+	// set Directory Filename
+	char *dir_name = "conf\\";
+
+	// form full filename
+	char ch_fname[100];
+
+	BYTE offset_k = 0;
+	k = 0;
+
+	BYTE act = 1;
+	while (act != 0)
+	{
+		// [#] mode 1: set directory name
+		if (act == 1)
+		{
+			// check end symbol
+			if (dir_name[k] == '\0')
+			{
+				// [END]
+
+				// switch mode
+				act = 2;
+
+				// set dir offset
+				offset_k = k;
+
+				// reset index
+				k = 0;
+			}
+			else
+			{
+				// [NOT END]
+				ch_fname[k] = dir_name[k];
+
+				k++;
+			}
+		} //mode 1 proc
+		else
+		{
+			// [#] mode 2: set file name
+			if (act == 2)
+			{
+				if (v_filename[k] == '\0')
+				{
+					// [END]
+
+					// set end of full filename string
+					ch_fname[k + offset_k] = '\0';
+
+					// switch mode
+					act = 0;		// END OP
+				}
+				else
+				{
+					// [NOT END]
+					ch_fname[k + offset_k] = v_filename[k];
+
+					k++;
+				}
+			} //mode 2
+		} //mode 1 else
+	}//while (act != 0)
 
 	// > Open File try
 	errno_t err;
-
-	char ch_fname[200];
-	for (int k = 0; k < str_filename.GetLength(); k++)
-	{
-		ch_fname[k] = str_filename[k];
-	}
-
-	ch_fname[str_filename.GetLength()] = '\0';
-
 	err = fopen_s(&fp, ch_fname, "r");
 
 	if (err != 0)
@@ -362,6 +414,28 @@ int CDS4830A_SFPP_LR_CONF_ENGI::TableValues_LoadFromFile(BYTE * v_ByteData)
 	}
 
 	// [STATUS OUTPUT]
+	CString str_filename;
+
+	k = 0;
+	act = 1;
+	while (act)
+	{
+		if (ch_fname[k] == '\0')
+		{
+			// [END]
+
+			act = 0;
+		}
+		else
+		{
+			// [NOT END]
+
+			str_filename.AppendChar(ch_fname[k]);
+
+			k++;
+		}
+	}
+
 	Trace(_T("File %s  \n"), str_filename);
 
 	// > Define parameters for probress bar
@@ -395,7 +469,7 @@ int CDS4830A_SFPP_LR_CONF_ENGI::TableValues_LoadFromFile(BYTE * v_ByteData)
 	// reopen FILE
 	fclose(fp);
 
-	err = fopen_s(&fp, file_name, "r");
+	err = fopen_s(&fp, ch_fname, "r");
 
 	if (err != 0)
 	{	// "can't open file" 
@@ -1202,7 +1276,23 @@ void CDS4830A_SFPP_LR_CONF_ENGI::OnBnClickedButton5()
 
 void CDS4830A_SFPP_LR_CONF_ENGI::OnBnClickedButtonConfRead()
 {
-	// TODO: Add your control notification handler code here
+	// loading Values
+	char ch_fName[50];
+	CString str_fName;
+
+	UpdateData(TRUE);
+	str_fName = m_Edit_Filename;
+
+	for (BYTE k = 0; k < str_fName.GetLength(); k++)
+	{
+		ch_fName[k] = str_fName[k];
+	}
+
+	ch_fName[str_fName.GetLength()] = '\0';
+
+	this->TableValues_LoadFromFile(ch_fName, this->uValues2);
+
+	m_Grid.GridSFF_Write(uValues2, 0, 256);
 }
 
 
@@ -1535,6 +1625,9 @@ BOOL CDS4830A_SFPP_LR_CONF_ENGI::OnInitDialog()
 
 	// > Password
 	m_sEdit_PassValue = (CString)"00112233";
+
+	// > Confic File Default
+	m_Edit_Filename = (CString)"test.conf";
 
 	UpdateData(FALSE);
 

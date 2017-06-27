@@ -41,6 +41,9 @@ void CDS4830A_SFPP_A2::DoDataExchange(CDataExchange* pDX)
 // -------------------------------------------------------------------
 // Table procedures
 // -------------------------------------------------------------------
+// TODO:
+// remove from this class
+
 unsigned char CDS4830A_SFPP_A2::DeviceSlave_Read(BYTE * v_ByteData, BYTE slaveAddr, BYTE startAddr, WORD count)
 {
 	BOOL				opened;
