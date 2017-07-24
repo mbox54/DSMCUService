@@ -15,6 +15,12 @@
 #define VID					0
 #define PID					0
 
+struct st_CP2112_GPConf
+{
+	BYTE direction;			// NOTE: 0 = input, 1 = output
+	BYTE mode;				// NOTE: 0 = open-drain, 1 = push-pull
+	BYTE function;			// NOTE: 000 = no specFunct, 111 = all Enabled (Clk, Tx, Rx)
+};
 
 // CDSMCUServiceDlg dialog
 class CDSMCUServiceDlg : public CDialogEx
@@ -34,6 +40,9 @@ public:
 protected:
 //	variables
 	bool m_connected_flag;
+
+	DWORD CP2112_activeDeviceNum;
+	st_CP2112_GPConf CP2112_GPConf;
 
 //  SiLabs CP2112 Driver
 	HID_SMBUS_DEVICE		m_hidSmbus;
@@ -75,4 +84,5 @@ public:
 	afx_msg void OnBnClickedButtonOperator();
 	afx_msg void OnBnClickedButtonAdmin();
 	CStatic m_Static_Logo;
+	int m_iRadio_DeviceType;
 };

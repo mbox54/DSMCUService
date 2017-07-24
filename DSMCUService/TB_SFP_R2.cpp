@@ -100,8 +100,8 @@ void CTB_SFP_R2::ProcLatchState()
 	// Set State
 	// [ModAbs]
 	CString strStateText;
-	if (latchValue & HID_SMBUS_MASK_GPIO_4)		strStateText = "[1]: модуль отсутствует";
-	else										strStateText = "[0]: модуль присутствует";
+	if (latchValue & HID_SMBUS_MASK_GPIO_4)		strStateText.AppendFormat(L"[1]: модуль отсутствует");
+	else										strStateText.AppendFormat(L"[0]: модуль присутствует");
 	pStaticModAbs->SetWindowTextW(strStateText);
 
 	// [TxDisable]
@@ -110,13 +110,13 @@ void CTB_SFP_R2::ProcLatchState()
 
 	if (latchValue & HID_SMBUS_MASK_GPIO_3)
 	{
-		strStateText = "[1]: лазер отключен";
-		strButtonText = "Вкл.";
+		strStateText.AppendFormat(L"[1]: лазер отключен");
+		strStateText.AppendFormat(L"Вкл.");
 	}
 	else
 	{
-		strStateText = "[0]: лазер включен";
-		strButtonText = "Выкл.";
+		strStateText.AppendFormat(L"[0]: лазер включен");
+		strStateText.AppendFormat(L"Выкл.");
 	}
 
 	pStaticTxDisable->SetWindowTextW(strStateText);
@@ -125,26 +125,26 @@ void CTB_SFP_R2::ProcLatchState()
 
 	// [RS0]
 	strStateText.Truncate(0);
-	if (latchValue & HID_SMBUS_MASK_GPIO_5)		strStateText = "[1]: высокий уровень";
-	else										strStateText = "[0]: низкий уровень";
+	if (latchValue & HID_SMBUS_MASK_GPIO_5)		strStateText.AppendFormat(L"[1]: высокий уровень");
+	else										strStateText.AppendFormat(L"[0]: низкий уровень");
 	pStaticRS0->SetWindowTextW(strStateText);
 
 	// [RS1]
 	strStateText.Truncate(0);
-	if (latchValue & HID_SMBUS_MASK_GPIO_7)		strStateText = "[1]: высокий уровень";
-	else										strStateText = "[0]: низкий уровень";
+	if (latchValue & HID_SMBUS_MASK_GPIO_7)		strStateText.AppendFormat(L"[1]: высокий уровень");
+	else										strStateText.AppendFormat(L"[0]: низкий уровень");
 	pStaticRS1->SetWindowTextW(strStateText);
 
 	// [TxFault]
 	strStateText.Truncate(0);
-	if (latchValue & HID_SMBUS_MASK_GPIO_2)		strStateText = "[1]: ошибка работы передатчика";
-	else										strStateText = "[0]: передатчик исправен";
+	if (latchValue & HID_SMBUS_MASK_GPIO_2)		strStateText.AppendFormat(L"[1]: ошибка работы передатчика");
+	else										strStateText.AppendFormat(L"[0]: передатчик исправен");
 	pStaticTxFault->SetWindowTextW(strStateText);
 
 	// [RxLos]
 	strStateText.Truncate(0);
-	if (latchValue & HID_SMBUS_MASK_GPIO_6)		strStateText = "[1]: слабый сигнал на приёме";
-	else										strStateText = "[0]: приём исправный";
+	if (latchValue & HID_SMBUS_MASK_GPIO_6)		strStateText.AppendFormat(L"[1]: слабый сигнал на приёме");
+	else										strStateText.AppendFormat(L"[0]: приём исправный");
 	pStaticRxLos->SetWindowTextW(strStateText);
 
 	Invalidate();

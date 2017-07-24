@@ -58,6 +58,7 @@ END_MESSAGE_MAP()
 
 CDSMCUServiceDlg::CDSMCUServiceDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_DSMCUSERVICE_DIALOG, pParent)
+	, m_iRadio_DeviceType(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -69,6 +70,7 @@ void CDSMCUServiceDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_DEVICE_LIST, m_comboDeviceList);
 	DDX_Control(pDX, IDC_STATIC_CONNECT, m_static_connect);
 	DDX_Control(pDX, IDC_STATIC_LOGO, m_Static_Logo);
+	DDX_Radio(pDX, IDC_RADIO_TEST_BOARD, m_iRadio_DeviceType);
 }
 
 void CDSMCUServiceDlg::UpdateDeviceList()
@@ -184,6 +186,7 @@ BOOL CDSMCUServiceDlg::Connect()
 		if (FindDevice(serial, deviceNum))
 		{
 			HID_SMBUS_STATUS status = HidSmbus_Open(&m_hidSmbus, deviceNum, VID, PID);
+			Sleep(50);
 
 			CString statusText;
 			//			statusText.Format(_T("HidSmbus_Open(): %s"), HidSmbus_DecodeErrorStatus(status).GetString());
@@ -225,18 +228,45 @@ BOOL CDSMCUServiceDlg::Connect()
 		// GPIO3 = 0 / GND
 //		HID_SMBUS_STATUS status = HidSmbus_WriteLatch(*&m_hidSmbus, 1, 0xE8);
 
-		BYTE mode = 0x00;
-		BYTE function = 0x00;
-		BYTE direction = 0xA8;	
-		// NOTE: 0 = input, 1 = output
+
+		UpdateData(TRUE);
+		BYTE ucDeviceType = m_iRadio_DeviceType;
+
+
+		st_CP2112_GPConf conf_curr;
+		switch (ucDeviceType)
+		{
+		case 0:		// Test Board
+			// ### Config for FT SFPp TestBoard rev.2 ###
+			conf_curr.direction = 0xA8;			// NOTE: 0 = input, 1 = output
+			conf_curr.mode = 0x00;				// NOTE: 0 = open-drain, 1 = push-pull
+			conf_curr.function = 0x06;			// NOTE: 000 = no specFunct, 111 = all Enabled ([1]Rx, [0]Tx, [7]Clk)
+
+			break;
+
+		case 1:		// Universal Reader
+			// ### Config for FT Universal Reader rev.1 ###
+			conf_curr.direction = 0xE2;			// NOTE: 0 = input, 1 = output
+			conf_curr.mode = 0x00;				// NOTE: 0 = open-drain, 1 = push-pull
+			conf_curr.function = 0x02;			// NOTE: 000 = no specFunct, 111 = all Enabled  ([1]Rx, [0]Tx, [7]Clk)
+
+			break;
+
+
+		default:	// err state
+
+			break;
+		}
 
 		// Set GPIO direction and mode bitmasks
-		HID_SMBUS_STATUS status = HidSmbus_SetGpioConfig(m_hidSmbus, direction, mode, function, 0);
+		HID_SMBUS_STATUS status = HidSmbus_SetGpioConfig(m_hidSmbus, conf_curr.direction, conf_curr.mode, conf_curr.function, 0);
 
-		// init
-		status = HidSmbus_WriteLatch(m_hidSmbus, 0x00, 0xFF);
-//		status = HidSmbus_WriteLatch(m_hidSmbus, 0, HID_SMBUS_MASK_GPIO_3);
+		// init Latch
+		HidSmbus_WriteLatch(m_hidSmbus, 0x00, 0xFF);
 
+		// store active params
+		CP2112_activeDeviceNum = deviceNum;
+		CP2112_GPConf = conf_curr;
 
 	}
 	// Disconnected
@@ -489,9 +519,12 @@ BOOL CDSMCUServiceDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	// TODO: Add extra initialization here
+	// Bitmap
 	m_static_connect.ModifyStyle(0, SS_BITMAP);
+
+	// init 
 	m_connected_flag = 0;
+	m_iRadio_DeviceType = 0;
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -667,7 +700,7 @@ void CDSMCUServiceDlg::OnBnClickedOk()
 
 
 	// open module dialog 
-    CDS4830A_srvDlg DS4830A_srvDlg(&this->m_hidSmbus, MD_ENGINEER);
+    CDS4830A_srvDlg DS4830A_srvDlg(&this->m_hidSmbus, MD_ENGINEER, CP2112_activeDeviceNum, CP2112_GPConf);
 	DS4830A_srvDlg.DoModal();
 
 
@@ -749,7 +782,7 @@ void CDSMCUServiceDlg::OnBnClickedButtonOperator()
 	// # set Mode MD_OPERATOR
 
 	// open module dialog 
-	CDS4830A_srvDlg DS4830A_srvDlg(&this->m_hidSmbus, MD_OPERATOR);
+	CDS4830A_srvDlg DS4830A_srvDlg(&this->m_hidSmbus, MD_OPERATOR, CP2112_activeDeviceNum, CP2112_GPConf);
 	DS4830A_srvDlg.DoModal();
 
 	CDialogEx::OnOK();
@@ -760,7 +793,7 @@ void CDSMCUServiceDlg::OnBnClickedButtonOperator()
 void CDSMCUServiceDlg::OnBnClickedButtonAdmin()
 {
 	// open module dialog 
-	CDS4830A_srvDlg DS4830A_srvDlg(&this->m_hidSmbus, MD_ENGINEER);
+	CDS4830A_srvDlg DS4830A_srvDlg(&this->m_hidSmbus, MD_ENGINEER, CP2112_activeDeviceNum, CP2112_GPConf);
 	DS4830A_srvDlg.DoModal();
 
 	CDialogEx::OnOK();

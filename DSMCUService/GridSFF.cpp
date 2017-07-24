@@ -287,6 +287,42 @@ void CGridSFF::SetTableColor()
 	}//while (color_number < 4)
 }
 
+// clear selected cell-range
+void CGridSFF::ClearCells(BYTE startAddr, WORD count)
+{
+	// define table start cell
+	unsigned char stRow = startAddr / 0x10;				// start Row
+	unsigned char stCol = startAddr - stRow * 0x10;		// start Col
+
+														// fill in table
+	unsigned char uRow = stRow + 1;						// +1 is for Fixed Cell
+	unsigned char uCol = stCol + 1;						// +1 is for Fixed Cell
+
+	for (WORD k = 0; k < count; k++)
+	{
+		// Clear Cell Text
+		this->SetItemText(uRow, uCol, L"");
+
+		// prepare next cell coord	
+		uCol++;
+
+		if (uCol > 0x0F + 1)							// +1 is for Fixed Cell
+		{
+			uCol = 0 + 1;								// +1 is for Fixed Cell
+			uRow++;										// can't exceed 0x0F val cause of #SafeCheck
+		}
+	}
+
+	this->Invalidate();
+
+}
+
+
+void CGridSFF::ClearTable()
+{
+	this->ClearCells(0, 256);
+
+}
 
 // Use: Update Grid[0xFF x 0xFF] Interface 
 // FROM: startAddr TO: startAddr + count 

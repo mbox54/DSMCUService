@@ -305,6 +305,12 @@ void CDS4830A_SFPP_A0::OnBnClickedButton4()
 	//
 	//Trace(_T("trying: READ\n"));
 	//Trace(_T("params: A0, 256 bytes\n"));
+
+	// prepare Table output
+	// clear Table
+	m_Grid.ClearTable();
+
+
 	Trace(_T("попытка: ЧТЕНИЕ\n"));
 	Trace(_T("параметры: A0, 256 байт\n"));
 
@@ -318,6 +324,37 @@ void CDS4830A_SFPP_A0::OnBnClickedButton4()
 	{
 		// error: Device Read
 		Trace(_T("ОШИБКА. [код: %02d] \n"), retVal);
+
+		CString str_ErrText;
+		switch (retVal)
+		{
+		case 1:
+			str_ErrText.AppendFormat(L"(MAXQBL_NO_DEVICE)");
+
+			break;
+
+		case 2:
+			str_ErrText.AppendFormat(L"(MAXQBL_DEV_INACCESSIBLE)");
+
+			break;
+
+		case 3:
+			str_ErrText.AppendFormat(L"(MAXQBL_OP_FAILED)");
+
+			break;
+
+		case 4:
+			str_ErrText.AppendFormat(L"(MAXQBL_OP_WRONG)");
+
+			break;
+
+		default:
+			break;
+		}
+		
+		// err comment output
+		Trace(str_ErrText);
+
 		return;
 		
 	}

@@ -342,7 +342,11 @@ void CDS4830A_SFF_Custom::OnBnClickedButton4()
 
 	p_cPB_OP->SetPos(100);
 
-	// Set output
+	// > Set output
+	// clear Table
+	m_Grid.ClearTable();
+
+	// output Data
 	m_Grid.GridSFF_Write(v_ReadBytes, ucAddrStart, uiAddrCount);
 
 	UpdateData(FALSE);

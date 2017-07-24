@@ -284,7 +284,7 @@ class CDS4830A_srvDlg : public CDialog
 
 public:
 	CDS4830A_srvDlg(CWnd* pParent = NULL);
-	CDS4830A_srvDlg(HID_SMBUS_DEVICE* pHidSmbus, BYTE mode, CWnd* pParent = NULL);
+	CDS4830A_srvDlg(HID_SMBUS_DEVICE* pHidSmbus, BYTE mode, DWORD CP2112_activeDeviceNum , st_CP2112_GPConf CP2112_GPConf, CWnd* pParent = NULL);
 
 	virtual ~CDS4830A_srvDlg();
 
@@ -325,6 +325,8 @@ protected:
 	// Service data operations/options
 	st_serviceData m_service;				// R/W status
 	BYTE m_Mode;							// Dialog Mode
+	DWORD mc_CP2112_activeDeviceNum;		// copy params
+	st_CP2112_GPConf mc_CP2112_GPConf;		// copy params
 
 // Implementation
 	// Variables
@@ -395,6 +397,7 @@ public:
 
 	afx_msg void OnPaint();
 	afx_msg void OnNMClickTabDs4830a(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedButtonTestboardReset();
 };
 
 

@@ -19,10 +19,12 @@ CDS4830A_srvDlg::CDS4830A_srvDlg(CWnd * pParent)
 {
 }
 
-CDS4830A_srvDlg::CDS4830A_srvDlg(HID_SMBUS_DEVICE * pHidSmbus, BYTE mode, CWnd* pParent /*=NULL*/)
+CDS4830A_srvDlg::CDS4830A_srvDlg(HID_SMBUS_DEVICE * pHidSmbus, BYTE mode, DWORD CP2112_activeDeviceNum, st_CP2112_GPConf CP2112_GPConf, CWnd* pParent /*=NULL*/)
 	: CDialog(IDD_DS4830A, pParent)
 	, m_pHidSmbus(pHidSmbus)
 	, m_Mode(mode)
+	, mc_CP2112_activeDeviceNum(CP2112_activeDeviceNum)
+	, mc_CP2112_GPConf(CP2112_GPConf)
 	// cp2112 grid
 	, m_GridSystem(m_pHidSmbus, &m_cPB_OP, &m_EDIT_STATUS, &m_service)
 	// pages
@@ -169,6 +171,7 @@ BEGIN_MESSAGE_MAP(CDS4830A_srvDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON1, &CDS4830A_srvDlg::OnBnClickedButton1)
 	ON_WM_PAINT()
 	ON_NOTIFY(NM_CLICK, IDC_TAB_DS4830A, &CDS4830A_srvDlg::OnNMClickTabDs4830a)
+	ON_BN_CLICKED(IDC_BUTTON_TESTBOARD_RESET, &CDS4830A_srvDlg::OnBnClickedButtonTestboardReset)
 END_MESSAGE_MAP()
 
 
@@ -1545,4 +1548,36 @@ void CDS4830A_srvDlg::OnNMClickTabDs4830a(NMHDR *pNMHDR, LRESULT *pResult)
 
 
 	*pResult = 0;
+}
+
+
+void CDS4830A_srvDlg::OnBnClickedButtonTestboardReset()
+{
+	
+	// reset CP2112
+	BYTE retVal = HidSmbus_Reset(*m_pHidSmbus);
+	Sleep(50);
+
+	// open CP2112 Last connection
+	retVal = HidSmbus_Open(m_pHidSmbus, mc_CP2112_activeDeviceNum, VID, PID);
+	Sleep(50);
+
+	// Set GPIO direction and mode bitmasks
+	retVal = HidSmbus_SetGpioConfig(*m_pHidSmbus, mc_CP2112_GPConf.direction, mc_CP2112_GPConf.mode, mc_CP2112_GPConf.function, 0);
+	Sleep(50);
+
+	// reinit
+	retVal = HidSmbus_WriteLatch(*m_pHidSmbus, 0x00, 0xFF);
+	Sleep(50);
+
+	if (retVal != HID_SMBUS_SUCCESS)
+	{
+		// error: Device Read
+		Trace(_T("”—“–Œ…—“¬Œ Õ≈ Œ“¬≈◊¿≈“. [ÍÓ‰: %02d] \n"), retVal);
+
+	}
+	else
+	{
+		Trace(_T("”—“–Œ…—“¬Œ œ≈–≈«¿√–”∆≈ÕŒ.\n"), retVal);
+	}
 }

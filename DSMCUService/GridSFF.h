@@ -20,6 +20,8 @@ public:
 	void Config();
 	void SetTableColor();
 
+	void ClearCells(BYTE startAddr, WORD count);
+	void ClearTable();
 	void GridSFF_Write_UpdateRange(BYTE * v_ByteData, BYTE startAddr, WORD count);
 	void GridSFF_Write(BYTE * v_ByteData, BYTE startAddr, WORD count);
 	void GridSFF_Write_Byte(BYTE * v_ByteData, BYTE startAddr, WORD count);
