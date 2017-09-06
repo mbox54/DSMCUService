@@ -3,7 +3,13 @@
 //
 
 #pragma once
+
+/////////////////////////////////////////////////////////////////////////////
+// Includes
+/////////////////////////////////////////////////////////////////////////////
 #include "SLABCP2112.h"
+#include "COMPort.h"
+
 #include "afxwin.h"
 
 #include "DSMCUService.h"
@@ -46,6 +52,9 @@ protected:
 
 //  SiLabs CP2112 Driver
 	HID_SMBUS_DEVICE		m_hidSmbus;
+	hSerialCDC				m_hSerialCDC;
+
+	DWORD dwComNum = 0;
 
 //	ComboBox Element
 	void UpdateDeviceList();
@@ -54,6 +63,9 @@ protected:
 
 	BOOL Connect();
 	BOOL Disconnect();
+
+	BOOL Connect_MCU();
+	BOOL Disconnect_MCU();
 
 	void EnableDeviceCtrls(BOOL enable);
 	void UpdateDeviceInformation(BOOL connected);
@@ -85,4 +97,6 @@ public:
 	afx_msg void OnBnClickedButtonAdmin();
 	CStatic m_Static_Logo;
 	int m_iRadio_DeviceType;
+	CString m_sEdit_COM_NUM;
+
 };

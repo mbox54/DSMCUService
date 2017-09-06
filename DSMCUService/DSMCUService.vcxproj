@@ -185,6 +185,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="COMPort.h" />
     <ClInclude Include="DlgTabCtrl.h" />
     <ClInclude Include="DS4830A_SFF_Custom.h" />
     <ClInclude Include="DS4830A_SFPP_DDM.h" />
@@ -219,6 +220,7 @@
     <ClInclude Include="TB_SFP_R2.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="COMPort.cpp" />
     <ClCompile Include="DlgTabCtrl.cpp" />
     <ClCompile Include="DS4830A_SFF_Custom.cpp" />
     <ClCompile Include="DS4830A_SFPP_DDM.cpp" />

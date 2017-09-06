@@ -59,6 +59,7 @@ END_MESSAGE_MAP()
 CDSMCUServiceDlg::CDSMCUServiceDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_DSMCUSERVICE_DIALOG, pParent)
 	, m_iRadio_DeviceType(0)
+	, m_sEdit_COM_NUM(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -71,6 +72,8 @@ void CDSMCUServiceDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_CONNECT, m_static_connect);
 	DDX_Control(pDX, IDC_STATIC_LOGO, m_Static_Logo);
 	DDX_Radio(pDX, IDC_RADIO_TEST_BOARD, m_iRadio_DeviceType);
+	DDX_Text(pDX, IDC_EDIT_COM_NUM, m_sEdit_COM_NUM);
+	DDV_MaxChars(pDX, m_sEdit_COM_NUM, 2);
 }
 
 void CDSMCUServiceDlg::UpdateDeviceList()
@@ -346,6 +349,31 @@ BOOL CDSMCUServiceDlg::Disconnect()
 
 	return disconnected;
 }
+
+
+BOOL CDSMCUServiceDlg::Connect_MCU()
+{
+	// > Get COM Number
+	BYTE dwComNum = (BYTE)_tcstoul(this->m_sEdit_COM_NUM, NULL, 10);
+
+	// > Connect
+	int iResult = COMPort_Open(&m_hSerialCDC, dwComNum);
+
+
+	return iResult;
+}
+
+
+BOOL CDSMCUServiceDlg::Disconnect_MCU()
+{
+
+	// > Disconnect
+	int iResult = COMPort_Close(&m_hSerialCDC);
+
+
+	return iResult;
+}
+
 
 void CDSMCUServiceDlg::EnableDeviceCtrls(BOOL enable)
 {
@@ -729,7 +757,7 @@ void CDSMCUServiceDlg::OnBnClickedCheckConnect()
 	if (m_connected_flag)
 	{
 		// [Disconnecting]
-		Disconnect();
+		Disconnect_MCU();
 
 		// Disable Controls
 		pBtnOper->EnableWindow(FALSE);
@@ -742,9 +770,9 @@ void CDSMCUServiceDlg::OnBnClickedCheckConnect()
 		// [Connecting]
 
 		// try to connect
-		bool res = Connect();
+		int iResult = Connect_MCU();
 
-		if (res)
+		if (iResult)
 		{
 			// success
 
